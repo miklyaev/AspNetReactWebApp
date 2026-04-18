@@ -6,9 +6,9 @@ services:
     container_name: aspnet-react-db
     restart: always
     environment:
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword
-      POSTGRES_DB: mydatabase
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: 130469
+      POSTGRES_DB: TestAiNvkzDb
     ports:
       - "5432:5432"
     volumes:
