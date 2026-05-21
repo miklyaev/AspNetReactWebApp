@@ -2,6 +2,7 @@
   <Folder Name="/Solution Items/">
     <File Path=".gitignore" />
     <File Path=".kodikignore" />
+    <File Path="ef-migrate.bat" />
     <File Path="package-lock.json" />
     <File Path="README.dev..md" />
   </Folder>

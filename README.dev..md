@@ -1,4 +1,4 @@
-# CLAUDE.md
+#   README.dev.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
@@ -38,6 +38,28 @@ This is a monorepo structure with a single .slnx solution containing the main AS
 - **setupProxy.js**: Development proxy configuration (routes API calls to ASP.NET backend on localhost:7000+)
 - **package.json**: npm dependencies and scripts (React Router, Bootstrap 5.2, Reactstrap, Workbox PWA libs)
 
+### Сущности доменной модели (`JiraClone.Data/Domain`)
+- BaseEntity: Id, CreatedAt, UpdatedAt (таймстемпы автоматически обновляются в SaveChanges/SaveChangesAsync)
+- Goal: Title, Description, Projects, вычисляемый Progress (среднее Progress проектов)
+- Project: Title, Description, GoalId → Goal, Tasks, вычисляемый Progress (% задач со статусом Done)
+- TaskItem: Title, Description, Status (TaskStatus), Priority (TaskPriority), ProjectId → Project, ExecutorId → Executor, Comments, TimeEntries
+- Executor: Name, Email, Tasks
+- Comment: Text, TaskItemId → TaskItem, AuthorId → Executor
+- TimeEntry: Hours (decimal 18,2), Date, TaskItemId → TaskItem, ExecutorId → Executor
+
+Перечисления (`Domain/Enums`):
+- TaskStatus: ToDo, InProgress, Done, Canceled
+- TaskPriority: Low, Medium, High, Critical
+
+Связи и правила удаления (см. AppDbContext.OnModelCreating):
+- Goal 1:M Projects — Cascade
+- Project 1:M Tasks — Cascade
+- TaskItem 1:M Comments — Cascade
+- TaskItem 1:M TimeEntries — Cascade
+- Executor 1:M Tasks — SetNull
+- Executor 1:M Comments — Restrict
+- Executor 1:M TimeEntries — Cascade
+- 
 ### Key Integration Points
 1. **SPA Proxy**: The .csproj file uses Microsoft.AspNetCore.SpaProxy to proxy React dev server during development
 2. **Build Pipeline**: During publish, React is built (`npm run build`) and output is copied to `wwwroot/` for serving as static files
@@ -101,7 +123,7 @@ Multi-stage build:
 Services:
 - **db**: PostgreSQL 16-alpine container
   - Database: TestAiNvkzDb
-  - Credentials: test / 130469 (note: change in production)
+  - Credentials: test / test_password (note: change in production)
   - Port: 5432
   - Volumes: postgres_data (persists data)
 - **web**: ASP.NET React application
@@ -195,7 +217,7 @@ Kestrel on port 5000
 
 1. **API Contracts**: Controllers return data that React components fetch via `/api/` routes (example: WeatherForecastController)
 2. **Proxy Configuration**: setupProxy.js handles development-only proxy; production doesn't need it
-3. **Database Migrations**: Not yet configured; Entity Framework Core or raw SQL patterns should be added if needed
+3. **Database Migrations**: Настроены EF Core миграции в проекте `JiraClone.Data` (папка `Migrations/`); для управления используйте `ef-migrate.bat`
 4. **Authentication**: oidc-client is installed but not yet integrated; OAuth/OIDC setup may be in progress
 5. **Forwarded Headers**: Essential for deployment behind reverse proxies (Nginx, etc.); already configured in Program.cs
 6. **PWA Features**: Workbox is included; service worker registration available (serviceWorkerRegistration.js)
