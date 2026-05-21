@@ -1,0 +1,56 @@
+# ========================
+# .NET / ASP.NET Core
+# ========================
+bin/
+obj/
+TestResults/
+*.TestResults
+
+# ========================
+# Visual Studio / IDE
+# ========================
+.vs/
+.vscode/
+.idea/
+*.user
+*.userproj
+*.suo
+*.sln.docstates
+
+# ========================
+# Логи и кэш
+# ========================
+logs/
+*.log
+*.sqlite
+*.mdf
+*.ldf
+
+# ========================
+# Файлы операционной системы
+# ========================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ========================
+# Фронтенд (если используется в проекте)
+# ========================
+node_modules/
+dist/
+build/
+.angular/
+.next/
+
+# ========================
+# Локальные конфигурации и секреты
+# ========================
+# Если вы не хотите, чтобы ИИ видел ваши локальные пароли и строки подключения:
+appsettings.Local*.json
+appsettings.Development.json
+secrets.json

@@ -192,6 +192,7 @@ yarn-error.log*
 .env.development.local
 .env.test.local
 .env.production.local
+appsettings.Development.json
 
 # Docker
 .dockerignore
@@ -259,3 +260,4 @@ v18/
 DesignTimeBuild/
 ProjectEvalution/
 .vs
+AspNetReactApp/appsettings.Development.json
