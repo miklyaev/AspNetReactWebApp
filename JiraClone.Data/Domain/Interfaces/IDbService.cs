@@ -12,6 +12,7 @@ public interface IDbService
     Task DeleteGoalAsync(int id);
 
     // Projects
+    Task<List<Project>> GetProjectsAsync();
     Task<List<Project>> GetProjectsByGoalIdAsync(int goalId);
     Task<Project?> GetProjectByIdAsync(int id);
     Task<Project> CreateProjectAsync(Project project);
@@ -19,6 +20,7 @@ public interface IDbService
     Task DeleteProjectAsync(int id);
 
     // Tasks
+    Task<List<TaskItem>> GetTasksAsync();
     Task<List<TaskItem>> GetTasksByProjectIdAsync(int projectId);
     Task<TaskItem?> GetTaskByIdAsync(int id);
     Task<TaskItem> CreateTaskAsync(TaskItem task);
@@ -29,7 +31,14 @@ public interface IDbService
     Task<List<Executor>> GetExecutorsAsync();
     Task<Executor> CreateExecutorAsync(Executor executor);
 
+    // Comments
+    Task<List<Comment>> GetCommentsByTaskIdAsync(int taskId);
+    Task<Comment> CreateCommentAsync(Comment comment);
+    Task DeleteCommentAsync(int id);
+
     // Time Tracking
+    Task<List<TimeEntry>> GetTimeEntriesAsync();
+    Task<List<TimeEntry>> GetTimeEntriesByTaskIdAsync(int taskId);
     Task<TimeEntry> AddTimeEntryAsync(TimeEntry entry);
     Task<decimal> GetTotalHoursByTaskAsync(int taskId);
 }

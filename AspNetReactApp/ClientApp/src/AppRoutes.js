@@ -1,19 +1,27 @@
-import { Counter } from "./components/Counter";
-import { FetchData } from "./components/FetchData";
-import { Home } from "./components/Home";
+import { GoalsPage } from "./components/GoalsPage";
+import { ProjectsPage } from "./components/ProjectsPage";
+import { TasksPage } from "./components/TasksPage";
+import { TimeEntriesPage } from "./components/TimeEntriesPage";
 
 const AppRoutes = [
   {
     index: true,
-    element: <Home />
+    element: <GoalsPage />
+  }, {
+    path: '/goals',
+    element: <GoalsPage />
   },
   {
-    path: '/counter',
-    element: <Counter />
+    path: '/projects',
+    element: <ProjectsPage />
   },
   {
-    path: '/fetch-data',
-    element: <FetchData />
+    path: '/tasks',
+    element: <TasksPage />
+  },
+  {
+    path: '/time',
+    element: <TimeEntriesPage />
   }
 ];
 

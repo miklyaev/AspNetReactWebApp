@@ -44,6 +44,9 @@ public class DbService : IDbService
     }
 
     // Projects
+    public async Task<List<Project>> GetProjectsAsync() =>
+        await _context.Projects.Include(p => p.Tasks).ToListAsync();
+
     public async Task<List<Project>> GetProjectsByGoalIdAsync(int goalId) =>
         await _context.Projects.Where(p => p.GoalId == goalId).Include(p => p.Tasks).ToListAsync();
 
@@ -74,8 +77,16 @@ public class DbService : IDbService
     }
 
     // Tasks
+    public async Task<List<TaskItem>> GetTasksAsync() =>
+        await _context.Tasks
+            .Include(t => t.Executor)
+            .ToListAsync();
+
     public async Task<List<TaskItem>> GetTasksByProjectIdAsync(int projectId) =>
-        await _context.Tasks.Where(t => t.ProjectId == projectId).ToListAsync();
+        await _context.Tasks
+            .Where(t => t.ProjectId == projectId)
+            .Include(t => t.Executor)
+            .ToListAsync();
 
     public async Task<TaskItem?> GetTaskByIdAsync(int id) =>
         await _context.Tasks
@@ -118,7 +129,42 @@ public class DbService : IDbService
         return executor;
     }
 
+    // Comments
+    public async Task<List<Comment>> GetCommentsByTaskIdAsync(int taskId) =>
+        await _context.Comments
+            .Where(c => c.TaskItemId == taskId)
+            .Include(c => c.Author)
+            .ToListAsync();
+
+    public async Task<Comment> CreateCommentAsync(Comment comment)
+    {
+        _context.Comments.Add(comment);
+        await _context.SaveChangesAsync();
+        return comment;
+    }
+
+    public async Task DeleteCommentAsync(int id)
+    {
+        var comment = await _context.Comments.FindAsync(id);
+        if (comment != null)
+        {
+            _context.Comments.Remove(comment);
+            await _context.SaveChangesAsync();
+        }
+    }
+
     // Time Tracking
+    public async Task<List<TimeEntry>> GetTimeEntriesAsync() =>
+        await _context.TimeEntries
+            .Include(te => te.Executor)
+            .ToListAsync();
+
+    public async Task<List<TimeEntry>> GetTimeEntriesByTaskIdAsync(int taskId) =>
+        await _context.TimeEntries
+            .Where(te => te.TaskItemId == taskId)
+            .Include(te => te.Executor)
+            .ToListAsync();
+
     public async Task<TimeEntry> AddTimeEntryAsync(TimeEntry entry)
     {
         _context.TimeEntries.Add(entry);
