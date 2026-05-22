@@ -1,8 +1,22 @@
 import React, { Component } from 'react';
 import { apiClient } from '../api/client';
 
-const statusOptions = ['ToDo', 'InProgress', 'Done', 'Canceled'];
-const priorityOptions = ['Low', 'Medium', 'High', 'Critical'];
+const statusOptions = ['К выполнению', 'В работе', 'Готово', 'Отменено'];
+const priorityOptions = ['Низкий', 'Средний', 'Высокий', 'Критический'];
+
+const statusMap = {
+  'ToDo': 'К выполнению',
+  'InProgress': 'В работе',
+  'Done': 'Готово',
+  'Canceled': 'Отменено'
+};
+
+const priorityMap = {
+  'Low': 'Низкий',
+  'Medium': 'Средний',
+  'High': 'Высокий',
+  'Critical': 'Критический'
+};
 
 export class TasksPage extends Component {
   static displayName = TasksPage.name;
@@ -150,13 +164,23 @@ export class TasksPage extends Component {
         {error && <div className="alert alert-danger">{error}</div>}
 
         <div className="list-group">
-          {tasks.map((task) => (
-            <div key={task.id} className="list-group-item">
-              <h6 className="mb-1">{task.title}</h6>
-              <div className="text-muted">{task.description || 'Без описания'}</div>
-              <small>Status: {task.status} | Priority: {task.priority} | ProjectId: {task.projectId}</small>
-            </div>
-          ))}
+          {tasks.map((task) => {
+            const project = projects.find(p => p.id === task.projectId);
+            const executor = executors.find(e => e.id === task.executorId);
+            const statusText = typeof task.status === 'number' ? statusOptions[task.status] : (statusMap[task.status] || task.status);
+            const priorityText = typeof task.priority === 'number' ? priorityOptions[task.priority] : (priorityMap[task.priority] || task.priority);
+
+            return (
+              <div key={task.id} className="list-group-item">
+                <h6 className="mb-1"><strong>{task.title}</strong></h6>
+                <div className="text-muted mb-1">{task.description || 'Без описания'}</div>
+                <small className="text-muted">
+                  Статус: <strong>{statusText}</strong> | Приоритет: <strong>{priorityText}</strong> | Проект: <strong>{project?.title || task.projectId}</strong>
+                  {executor && <span> | Исполнитель: <strong>{executor.name}</strong></span>}
+                </small>
+              </div>
+            );
+          })}
         </div>
       </div>
     );
