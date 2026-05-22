@@ -8,6 +8,18 @@ public static class AppDbSeeder
 {
     public static async Task SeedAsync(AppDbContext context)
     {
+        if (!await context.Leaders.AnyAsync())
+        {
+            var responsiblePersons = new List<Leader>
+            {
+                new() { Name = "Алексей Романов", Email = "alexey.romanov@example.com" },
+                new() { Name = "Екатерина Морозова", Email = "ekaterina.morozova@example.com" }
+            };
+
+            await context.Leaders.AddRangeAsync(responsiblePersons);
+            await context.SaveChangesAsync();
+        }
+
         if (await context.Goals.AnyAsync())
         {
             return;

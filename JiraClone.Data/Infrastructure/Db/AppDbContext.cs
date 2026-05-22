@@ -11,9 +11,9 @@ public class AppDbContext : DbContext
     public DbSet<Project> Projects => Set<Project>();
     public DbSet<TaskItem> Tasks => Set<TaskItem>();
     public DbSet<Executor> Executors => Set<Executor>();
+    public DbSet<Leader> Leaders => Set<Leader>();
     public DbSet<Comment> Comments => Set<Comment>();
     public DbSet<TimeEntry> TimeEntries => Set<TimeEntry>();
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

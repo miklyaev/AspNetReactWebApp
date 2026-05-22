@@ -129,6 +129,17 @@ public class DbService : IDbService
         return executor;
     }
 
+    // Responsible Persons
+    public async Task<List<Leader>> GetResponsiblePersonsAsync() =>
+        await _context.Leaders.ToListAsync();
+
+    public async Task<Leader> CreateResponsiblePersonAsync(Leader responsiblePerson)
+    {
+        _context.Leaders.Add(responsiblePerson);
+        await _context.SaveChangesAsync();
+        return responsiblePerson;
+    }
+
     // Comments
     public async Task<List<Comment>> GetCommentsByTaskIdAsync(int taskId) =>
         await _context.Comments

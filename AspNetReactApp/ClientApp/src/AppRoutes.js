@@ -1,3 +1,4 @@
+import { Home } from "./components/Home";
 import { GoalsPage } from "./components/GoalsPage";
 import { ProjectsPage } from "./components/ProjectsPage";
 import { TasksPage } from "./components/TasksPage";
@@ -6,7 +7,7 @@ import { TimeEntriesPage } from "./components/TimeEntriesPage";
 const AppRoutes = [
   {
     index: true,
-    element: <GoalsPage />
+    element: <Home />
   }, {
     path: '/goals',
     element: <GoalsPage />

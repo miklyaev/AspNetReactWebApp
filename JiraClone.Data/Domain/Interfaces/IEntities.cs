@@ -40,8 +40,13 @@ public interface IExecutor : IBaseEntity
     string Email { get; set; }
 }
 
-public interface IComment : IBaseEntity
+public interface ILeader : IBaseEntity
 {
+    string Name { get; set; }
+    string Email { get; set; }
+}
+
+public interface IComment : IBaseEntity{
     string Text { get; set; }
     int TaskItemId { get; set; }
     int AuthorId { get; set; }
