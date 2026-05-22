@@ -133,13 +133,12 @@ public class DbService : IDbService
     public async Task<List<Leader>> GetLeadersAsync() =>
         await _context.Leaders.ToListAsync();
 
-    public async Task<Leader> CreateLeaderAsync(Leader Leader)
+    public async Task<Leader> CreateLeaderAsync(Leader leader)
     {
-        _context.Leaders.Add(Leader);
+        _context.Leaders.Add(leader);
         await _context.SaveChangesAsync();
-        return Leader;
+        return leader;
     }
-
     // Comments
     public async Task<List<Comment>> GetCommentsByTaskIdAsync(int taskId) =>
         await _context.Comments

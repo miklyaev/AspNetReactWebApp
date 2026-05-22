@@ -10,16 +10,15 @@ public static class AppDbSeeder
     {
         if (!await context.Leaders.AnyAsync())
         {
-            var Leaders = new List<Leader>
+            var leaders = new List<Leader>
             {
                 new() { Name = "Алексей Романов", Email = "alexey.romanov@example.com" },
                 new() { Name = "Екатерина Морозова", Email = "ekaterina.morozova@example.com" }
             };
 
-            await context.Leaders.AddRangeAsync(Leaders);
+            await context.Leaders.AddRangeAsync(leaders);
             await context.SaveChangesAsync();
         }
-
         if (await context.Goals.AnyAsync())
         {
             return;

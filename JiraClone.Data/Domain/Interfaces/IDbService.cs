@@ -33,8 +33,7 @@ public interface IDbService
 
     // Responsible Persons
     Task<List<Leader>> GetLeadersAsync();
-    Task<Leader> CreateLeaderAsync(Leader Leader);
-
+    Task<Leader> CreateLeaderAsync(Leader leader);
     // Comments
     Task<List<Comment>> GetCommentsByTaskIdAsync(int taskId);
     Task<Comment> CreateCommentAsync(Comment comment);

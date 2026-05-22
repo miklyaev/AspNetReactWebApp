@@ -1,13 +1,13 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { apiClient } from '../api/client';
-
+import './Home.css';
 export class Home extends Component {
   static displayName = Home.name;
 
   constructor(props) {
     super(props);
     this.state = {
-      Leaders: [],
+      leaders: [],
       executors: [],
       responsibleName: '',
       responsibleEmail: '',
@@ -24,13 +24,13 @@ export class Home extends Component {
 
   async loadData() {
     try {
-      const [Leaders, executors] = await Promise.all([
+      const [leaders, executors] = await Promise.all([
         apiClient.getLeaders(),
         apiClient.getExecutors()
       ]);
 
       this.setState({
-        Leaders,
+        leaders,
         executors,
         loading: false,
         error: ''
@@ -39,7 +39,6 @@ export class Home extends Component {
       this.setState({ loading: false, error: error.message });
     }
   }
-
   async handleAddLeader(event) {
     event.preventDefault();
 
@@ -76,7 +75,7 @@ export class Home extends Component {
 
   render() {
     const {
-      Leaders,
+      leaders,
       executors,
       responsibleName,
       responsibleEmail,
@@ -85,10 +84,9 @@ export class Home extends Component {
       loading,
       error
     } = this.state;
-
     return (
-      <div>
-        <h1 className="mb-3">Home</h1>
+      <div className="home-container">
+        <h1 className="mb-3 main-title">Simple Jira</h1>
         <p className="mb-4">
           Система управления задачами и временем. Минималистична. Связывает задачи с целями. Учитывает время без friction
         </p>
@@ -96,7 +94,7 @@ export class Home extends Component {
         {loading && <p>Загрузка...</p>}
         {error && <div className="alert alert-danger">{error}</div>}
 
-        <h3 className="mt-4">Ответственные лица</h3>
+        <h3 className="mt-4 section-title">Ответственные лица</h3>
         <table className="table table-striped">
           <thead>
             <tr>
@@ -106,7 +104,7 @@ export class Home extends Component {
             </tr>
           </thead>
           <tbody>
-            {Leaders.map((person) => (
+            {leaders.map((person) => (
               <tr key={person.id}>
                 <td>{person.name}</td>
                 <td>{person.email}</td>
@@ -138,8 +136,7 @@ export class Home extends Component {
           </div>
         </form>
 
-        <h3 className="mt-4">Исполнители</h3>
-        <table className="table table-striped">
+        <h3 className="mt-4 section-title">Исполнители</h3>        <table className="table table-striped">
           <thead>
             <tr>
               <th>Имя</th>

@@ -1,8 +1,7 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { Collapse, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink } from 'reactstrap';
 import { Link } from 'react-router-dom';
 import './NavMenu.css';
-
 export class NavMenu extends Component {
   static displayName = NavMenu.name;
 
@@ -24,28 +23,34 @@ export class NavMenu extends Component {
   render() {
     return (
       <header>
-        <Navbar className="navbar-expand-sm navbar-toggleable-sm ng-white border-bottom box-shadow mb-3" container light>
-          <NavbarBrand tag={Link} to="/">AspNetReactApp</NavbarBrand>
+        <Navbar className="navbar-expand-sm navbar-toggleable-sm border-bottom box-shadow mb-3 custom-navbar" container dark>
+          <NavbarBrand tag={Link} to="/">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="me-2">
+              <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M2 17L12 22L22 17" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M2 12L12 17L22 12" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </NavbarBrand>
           <NavbarToggler onClick={this.toggleNavbar} className="mr-2" />
           <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={!this.state.collapsed} navbar>
             <ul className="navbar-nav flex-grow">
               <NavItem>
-                <NavLink tag={Link} className="text-dark" to="/">Главная</NavLink>
+                <NavLink tag={Link} className="text-white" to="/">Главная</NavLink>
               </NavItem>
               <NavItem>
-                <NavLink tag={Link} className="text-dark" to="/goals">Цели</NavLink>
+                <NavLink tag={Link} className="text-white" to="/goals">Цели</NavLink>
               </NavItem>
               <NavItem>
-                <NavLink tag={Link} className="text-dark" to="/projects">Проекты</NavLink>
+                <NavLink tag={Link} className="text-white" to="/projects">Проекты</NavLink>
               </NavItem>
               <NavItem>
-                <NavLink tag={Link} className="text-dark" to="/tasks">Задачи</NavLink>
+                <NavLink tag={Link} className="text-white" to="/tasks">Задачи</NavLink>
               </NavItem>
               <NavItem>
-                <NavLink tag={Link} className="text-dark" to="/time">Время</NavLink>
+                <NavLink tag={Link} className="text-white" to="/time">Время</NavLink>
               </NavItem>
-            </ul>          </Collapse>
-        </Navbar>
+            </ul>
+          </Collapse>        </Navbar>
       </header>
     );
   }
