@@ -32,8 +32,8 @@ public interface IDbService
     Task<Executor> CreateExecutorAsync(Executor executor);
 
     // Responsible Persons
-    Task<List<Leader>> GetResponsiblePersonsAsync();
-    Task<Leader> CreateResponsiblePersonAsync(Leader responsiblePerson);
+    Task<List<Leader>> GetLeadersAsync();
+    Task<Leader> CreateLeaderAsync(Leader Leader);
 
     // Comments
     Task<List<Comment>> GetCommentsByTaskIdAsync(int taskId);

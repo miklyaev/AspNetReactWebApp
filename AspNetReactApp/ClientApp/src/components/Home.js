@@ -7,7 +7,7 @@ export class Home extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      responsiblePersons: [],
+      Leaders: [],
       executors: [],
       responsibleName: '',
       responsibleEmail: '',
@@ -24,13 +24,13 @@ export class Home extends Component {
 
   async loadData() {
     try {
-      const [responsiblePersons, executors] = await Promise.all([
-        apiClient.getResponsiblePersons(),
+      const [Leaders, executors] = await Promise.all([
+        apiClient.getLeaders(),
         apiClient.getExecutors()
       ]);
 
       this.setState({
-        responsiblePersons,
+        Leaders,
         executors,
         loading: false,
         error: ''
@@ -40,7 +40,7 @@ export class Home extends Component {
     }
   }
 
-  async handleAddResponsiblePerson(event) {
+  async handleAddLeader(event) {
     event.preventDefault();
 
     const { responsibleName, responsibleEmail } = this.state;
@@ -48,7 +48,7 @@ export class Home extends Component {
       return;
     }
 
-    await apiClient.createResponsiblePerson({
+    await apiClient.createLeader({
       name: responsibleName.trim(),
       email: responsibleEmail.trim()
     });
@@ -76,7 +76,7 @@ export class Home extends Component {
 
   render() {
     const {
-      responsiblePersons,
+      Leaders,
       executors,
       responsibleName,
       responsibleEmail,
@@ -106,7 +106,7 @@ export class Home extends Component {
             </tr>
           </thead>
           <tbody>
-            {responsiblePersons.map((person) => (
+            {Leaders.map((person) => (
               <tr key={person.id}>
                 <td>{person.name}</td>
                 <td>{person.email}</td>
@@ -116,7 +116,7 @@ export class Home extends Component {
           </tbody>
         </table>
 
-        <form className="row g-2 mb-4" onSubmit={(event) => this.handleAddResponsiblePerson(event)}>
+        <form className="row g-2 mb-4" onSubmit={(event) => this.handleAddLeader(event)}>
           <div className="col-md-4">
             <input
               className="form-control"

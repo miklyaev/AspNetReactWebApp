@@ -130,14 +130,14 @@ public class DbService : IDbService
     }
 
     // Responsible Persons
-    public async Task<List<Leader>> GetResponsiblePersonsAsync() =>
+    public async Task<List<Leader>> GetLeadersAsync() =>
         await _context.Leaders.ToListAsync();
 
-    public async Task<Leader> CreateResponsiblePersonAsync(Leader responsiblePerson)
+    public async Task<Leader> CreateLeaderAsync(Leader Leader)
     {
-        _context.Leaders.Add(responsiblePerson);
+        _context.Leaders.Add(Leader);
         await _context.SaveChangesAsync();
-        return responsiblePerson;
+        return Leader;
     }
 
     // Comments
