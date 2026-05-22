@@ -4,7 +4,7 @@
     <File Path=".kodikignore" />
     <File Path="ef-migrate.bat" />
     <File Path="package-lock.json" />
-    <File Path="README.dev..md" />
+    <File Path="README.dev.md" />
   </Folder>
   <Project Path="AspNetReactApp/AspNetReactApp.csproj" />
   <Project Path="JiraClone.Data/JiraClone.Data.csproj" />
