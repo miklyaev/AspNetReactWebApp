@@ -10,6 +10,7 @@ public class AppDbContext : DbContext
     public DbSet<Goal> Goals => Set<Goal>();
     public DbSet<Project> Projects => Set<Project>();
     public DbSet<TaskItem> Tasks => Set<TaskItem>();
+    public DbSet<Employee> Employees => Set<Employee>();
     public DbSet<Executor> Executors => Set<Executor>();
     public DbSet<Leader> Leaders => Set<Leader>();
     public DbSet<Comment> Comments => Set<Comment>();
@@ -45,6 +46,22 @@ public class AppDbContext : DbContext
             .WithOne(te => te.TaskItem)
             .HasForeignKey(te => te.TaskItemId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        // TPH for Employee
+        modelBuilder.Entity<Employee>()
+            .HasDiscriminator<string>("EmployeeType")
+            .HasValue<Executor>("Executor")
+            .HasValue<Leader>("Leader");
+
+        modelBuilder.Entity<Employee>()
+            .Property(e => e.Login)
+            .HasMaxLength(12)
+            .IsRequired();
+
+        modelBuilder.Entity<Employee>()
+            .Property(e => e.Password)
+            .HasMaxLength(12)
+            .IsRequired();
 
         // Executor -> Tasks (1:M)
         modelBuilder.Entity<Executor>()

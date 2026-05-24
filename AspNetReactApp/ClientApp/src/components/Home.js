@@ -11,8 +11,12 @@ export class Home extends Component {
       executors: [],
       responsibleName: '',
       responsibleEmail: '',
+      responsibleLogin: '',
+      responsiblePassword: '',
       executorName: '',
       executorEmail: '',
+      executorLogin: '',
+      executorPassword: '',
       loading: true,
       error: ''
     };
@@ -42,34 +46,38 @@ export class Home extends Component {
   async handleAddLeader(event) {
     event.preventDefault();
 
-    const { responsibleName, responsibleEmail } = this.state;
-    if (!responsibleName.trim() || !responsibleEmail.trim()) {
+    const { responsibleName, responsibleEmail, responsibleLogin, responsiblePassword } = this.state;
+    if (!responsibleName.trim() || !responsibleEmail.trim() || !responsibleLogin.trim() || !responsiblePassword.trim()) {
       return;
     }
 
     await apiClient.createLeader({
       name: responsibleName.trim(),
-      email: responsibleEmail.trim()
+      email: responsibleEmail.trim(),
+      login: responsibleLogin.trim(),
+      password: responsiblePassword.trim()
     });
 
-    this.setState({ responsibleName: '', responsibleEmail: '' });
+    this.setState({ responsibleName: '', responsibleEmail: '', responsibleLogin: '', responsiblePassword: '' });
     await this.loadData();
   }
 
   async handleAddExecutor(event) {
     event.preventDefault();
 
-    const { executorName, executorEmail } = this.state;
-    if (!executorName.trim() || !executorEmail.trim()) {
+    const { executorName, executorEmail, executorLogin, executorPassword } = this.state;
+    if (!executorName.trim() || !executorEmail.trim() || !executorLogin.trim() || !executorPassword.trim()) {
       return;
     }
 
     await apiClient.createExecutor({
       name: executorName.trim(),
-      email: executorEmail.trim()
+      email: executorEmail.trim(),
+      login: executorLogin.trim(),
+      password: executorPassword.trim()
     });
 
-    this.setState({ executorName: '', executorEmail: '' });
+    this.setState({ executorName: '', executorEmail: '', executorLogin: '', executorPassword: '' });
     await this.loadData();
   }
 
@@ -79,8 +87,12 @@ export class Home extends Component {
       executors,
       responsibleName,
       responsibleEmail,
+      responsibleLogin,
+      responsiblePassword,
       executorName,
       executorEmail,
+      executorLogin,
+      executorPassword,
       loading,
       error
     } = this.state;
@@ -100,41 +112,63 @@ export class Home extends Component {
             <tr>
               <th>Имя</th>
               <th>Email</th>
+              <th>Логин</th>
               <th>Права</th>
             </tr>
           </thead>
           <tbody>
-            {leaders.map((person) => (
-              <tr key={person.id}>
-                <td>{person.name}</td>
-                <td>{person.email}</td>
-                <td>Полные права на все сущности</td>
+            {executors.map((executor) => (
+              <tr key={executor.id}>
+                <td>{executor.name}</td>
+                <td>{executor.email}</td>
+                <td>{executor.login}</td>
+                <td>Могут менять статус задачи и писать комментарии</td>
               </tr>
             ))}
           </tbody>
         </table>
 
-        <form className="row g-2 mb-4" onSubmit={(event) => this.handleAddLeader(event)}>
-          <div className="col-md-4">
+        <form className="row g-2" onSubmit={(event) => this.handleAddExecutor(event)}>
+          <div className="col-md-3">
             <input
               className="form-control"
-              placeholder="Имя ответственного"
-              value={responsibleName}
-              onChange={(event) => this.setState({ responsibleName: event.target.value })}
+              placeholder="Имя исполнителя"
+              value={executorName}
+              onChange={(event) => this.setState({ executorName: event.target.value })}
             />
           </div>
-          <div className="col-md-4">
+          <div className="col-md-3">
             <input
               className="form-control"
-              placeholder="Email ответственного"
-              value={responsibleEmail}
-              onChange={(event) => this.setState({ responsibleEmail: event.target.value })}
+              placeholder="Email исполнителя"
+              value={executorEmail}
+              onChange={(event) => this.setState({ executorEmail: event.target.value })}
             />
           </div>
-          <div className="col-md-4">
-            <button type="submit" className="btn btn-primary w-100">Добавить ответственного</button>
+          <div className="col-md-2">
+            <input
+              className="form-control"
+              placeholder="Логин"
+              maxLength={12}
+              value={executorLogin}
+              onChange={(event) => this.setState({ executorLogin: event.target.value })}
+            />
+          </div>
+          <div className="col-md-2">
+            <input
+              className="form-control"
+              type="password"
+              placeholder="Пароль"
+              maxLength={12}
+              value={executorPassword}
+              onChange={(event) => this.setState({ executorPassword: event.target.value })}
+            />
+          </div>
+          <div className="col-md-2">
+            <button type="submit" className="btn btn-primary w-100">Добавить</button>
           </div>
         </form>
+
 
         <h3 className="mt-4 section-title">Исполнители</h3>        <table className="table table-striped">
           <thead>

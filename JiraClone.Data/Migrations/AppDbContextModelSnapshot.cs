@@ -55,7 +55,7 @@ namespace JiraClone.Data.Migrations
                     b.ToTable("Comments");
                 });
 
-            modelBuilder.Entity("JiraClone.Data.Domain.Entities.Executor", b =>
+            modelBuilder.Entity("JiraClone.Data.Domain.Entities.Employee", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -70,16 +70,35 @@ namespace JiraClone.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("EmployeeType")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)");
+
+                    b.Property<string>("Login")
+                        .IsRequired()
+                        .HasMaxLength(12)
+                        .HasColumnType("character varying(12)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasMaxLength(12)
+                        .HasColumnType("character varying(12)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Executors");
+                    b.ToTable("Employees");
+
+                    b.HasDiscriminator<string>("EmployeeType").HasValue("Employee");
+
+                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("JiraClone.Data.Domain.Entities.Goal", b =>
@@ -106,33 +125,6 @@ namespace JiraClone.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Goals");
-                });
-
-            modelBuilder.Entity("JiraClone.Data.Domain.Entities.Leader", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Leaders");
                 });
 
             modelBuilder.Entity("JiraClone.Data.Domain.Entities.Project", b =>
@@ -244,6 +236,20 @@ namespace JiraClone.Data.Migrations
                     b.ToTable("TimeEntries");
                 });
 
+            modelBuilder.Entity("JiraClone.Data.Domain.Entities.Executor", b =>
+                {
+                    b.HasBaseType("JiraClone.Data.Domain.Entities.Employee");
+
+                    b.HasDiscriminator().HasValue("Executor");
+                });
+
+            modelBuilder.Entity("JiraClone.Data.Domain.Entities.Leader", b =>
+                {
+                    b.HasBaseType("JiraClone.Data.Domain.Entities.Employee");
+
+                    b.HasDiscriminator().HasValue("Leader");
+                });
+
             modelBuilder.Entity("JiraClone.Data.Domain.Entities.Comment", b =>
                 {
                     b.HasOne("JiraClone.Data.Domain.Entities.Executor", "Author")
@@ -311,11 +317,6 @@ namespace JiraClone.Data.Migrations
                     b.Navigation("TaskItem");
                 });
 
-            modelBuilder.Entity("JiraClone.Data.Domain.Entities.Executor", b =>
-                {
-                    b.Navigation("Tasks");
-                });
-
             modelBuilder.Entity("JiraClone.Data.Domain.Entities.Goal", b =>
                 {
                     b.Navigation("Projects");
@@ -331,6 +332,11 @@ namespace JiraClone.Data.Migrations
                     b.Navigation("Comments");
 
                     b.Navigation("TimeEntries");
+                });
+
+            modelBuilder.Entity("JiraClone.Data.Domain.Entities.Executor", b =>
+                {
+                    b.Navigation("Tasks");
                 });
 #pragma warning restore 612, 618
         }

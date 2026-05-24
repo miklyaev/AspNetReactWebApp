@@ -34,16 +34,20 @@ public interface ITaskItem : IBaseEntity
     int? ExecutorId { get; set; }
 }
 
-public interface IExecutor : IBaseEntity
+public interface IEmployee : IBaseEntity
 {
     string Name { get; set; }
     string Email { get; set; }
+    string Login { get; set; }
+    string Password { get; set; }
 }
 
-public interface ILeader : IBaseEntity
+public interface IExecutor : IEmployee
 {
-    string Name { get; set; }
-    string Email { get; set; }
+}
+
+public interface ILeader : IEmployee
+{
 }
 
 public interface IComment : IBaseEntity{

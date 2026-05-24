@@ -12,8 +12,8 @@ public static class AppDbSeeder
         {
             var leaders = new List<Leader>
             {
-                new() { Name = "Алексей Романов", Email = "alexey.romanov@example.com" },
-                new() { Name = "Екатерина Морозова", Email = "ekaterina.morozova@example.com" }
+                new() { Name = "Алексей Романов", Email = "alexey.romanov@example.com", Login = "alexey_roman", Password = "password1234" },
+                new() { Name = "Екатерина Морозова", Email = "ekaterina.morozova@example.com", Login = "katya_moroz", Password = "password1234" }
             };
 
             await context.Leaders.AddRangeAsync(leaders);
@@ -26,9 +26,9 @@ public static class AppDbSeeder
 
         var executors = new List<Executor>
         {
-            new() { Name = "Анна Петрова", Email = "anna.petrov@example.com" },
-            new() { Name = "Иван Смирнов", Email = "ivan.smirnov@example.com" },
-            new() { Name = "Мария Кузнецова", Email = "maria.kuznetsova@example.com" }
+            new() { Name = "Анна Петрова", Email = "anna.petrov@example.com", Login = "anna_petrova", Password = "password1234" },
+            new() { Name = "Иван Смирнов", Email = "ivan.smirnov@example.com", Login = "ivan_smirnov", Password = "password1234" },
+            new() { Name = "Мария Кузнецова", Email = "maria.kuznetsova@example.com", Login = "masha_kuznet", Password = "password1234" }
         };
 
         await context.Executors.AddRangeAsync(executors);
