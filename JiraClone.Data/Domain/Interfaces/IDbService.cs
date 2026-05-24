@@ -30,10 +30,12 @@ public interface IDbService
     // Executors
     Task<List<Executor>> GetExecutorsAsync();
     Task<Executor> CreateExecutorAsync(Executor executor);
+    Task DeleteExecutorAsync(int id);
 
     // Responsible Persons
     Task<List<Leader>> GetLeadersAsync();
     Task<Leader> CreateLeaderAsync(Leader leader);
+    Task DeleteLeaderAsync(int id);
     // Comments
     Task<List<Comment>> GetCommentsByTaskIdAsync(int taskId);
     Task<Comment> CreateCommentAsync(Comment comment);

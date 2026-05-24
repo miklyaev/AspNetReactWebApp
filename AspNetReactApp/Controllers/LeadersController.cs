@@ -40,6 +40,13 @@ public class LeadersController : ControllerBase
         return CreatedAtAction(nameof(GetLeaders), new { id = created.Id }, created);
     }
 
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> DeleteLeader(int id)
+    {
+        await _dbService.DeleteLeaderAsync(id);
+        return NoContent();
+    }
+
     public sealed class LeaderRequest
     {
         public string Name { get; set; } = string.Empty;

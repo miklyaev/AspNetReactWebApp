@@ -129,6 +129,16 @@ public class DbService : IDbService
         return executor;
     }
 
+    public async Task DeleteExecutorAsync(int id)
+    {
+        var executor = await _context.Executors.FindAsync(id);
+        if (executor != null)
+        {
+            _context.Executors.Remove(executor);
+            await _context.SaveChangesAsync();
+        }
+    }
+
     // Responsible Persons
     public async Task<List<Leader>> GetLeadersAsync() =>
         await _context.Leaders.ToListAsync();
@@ -138,6 +148,16 @@ public class DbService : IDbService
         _context.Leaders.Add(leader);
         await _context.SaveChangesAsync();
         return leader;
+    }
+
+    public async Task DeleteLeaderAsync(int id)
+    {
+        var leader = await _context.Leaders.FindAsync(id);
+        if (leader != null)
+        {
+            _context.Leaders.Remove(leader);
+            await _context.SaveChangesAsync();
+        }
     }
     // Comments
     public async Task<List<Comment>> GetCommentsByTaskIdAsync(int taskId) =>

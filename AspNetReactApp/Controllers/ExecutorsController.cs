@@ -40,6 +40,13 @@ public class ExecutorsController : ControllerBase
         return CreatedAtAction(nameof(GetExecutors), new { id = created.Id }, created);
     }
 
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> DeleteExecutor(int id)
+    {
+        await _dbService.DeleteExecutorAsync(id);
+        return NoContent();
+    }
+
     public sealed class ExecutorRequest
     {
         public string Name { get; set; } = string.Empty;

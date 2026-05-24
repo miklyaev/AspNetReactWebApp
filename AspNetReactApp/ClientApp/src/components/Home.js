@@ -26,6 +26,11 @@ export class Home extends Component {
     await this.loadData();
   }
 
+  async handleDeleteLeader(id) {
+    await apiClient.deleteLeader(id);
+    await this.loadData();
+  }
+
   async loadData() {
     try {
       const [leaders, executors] = await Promise.all([
@@ -59,6 +64,11 @@ export class Home extends Component {
     });
 
     this.setState({ responsibleName: '', responsibleEmail: '', responsibleLogin: '', responsiblePassword: '' });
+    await this.loadData();
+  }
+
+  async handleDeleteExecutor(id) {
+    await apiClient.deleteExecutor(id);
     await this.loadData();
   }
 
@@ -112,37 +122,45 @@ export class Home extends Component {
             <tr>
               <th>Имя</th>
               <th>Email</th>
-              <th>Логин</th>
               <th>Права</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
-            {executors.map((executor) => (
-              <tr key={executor.id}>
-                <td>{executor.name}</td>
-                <td>{executor.email}</td>
-                <td>{executor.login}</td>
-                <td>Могут менять статус задачи и писать комментарии</td>
+            {leaders.map((leader) => (
+              <tr key={leader.id}>
+                <td>{leader.name}</td>
+                <td>{leader.email}</td>
+                <td>Могут добавлять/редактировать цели, проекты и задачи</td>
+                <td className="text-end">
+                  <button
+                    type="button"
+                    className="btn btn-outline-danger btn-sm"
+                    onClick={() => this.handleDeleteLeader(leader.id)}
+                  >
+                    Удалить
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
 
-        <form className="row g-2" onSubmit={(event) => this.handleAddExecutor(event)}>
-          <div className="col-md-3">
+        <form className="row g-2" onSubmit={(event) => this.handleAddLeader(event)}>
+          <div className="col-md-2">
             <input
               className="form-control"
-              placeholder="Имя исполнителя"
-              value={executorName}
-              onChange={(event) => this.setState({ executorName: event.target.value })}
+              placeholder="Имя ответственного"
+              value={responsibleName}
+              onChange={(event) => this.setState({ responsibleName: event.target.value })}
             />
           </div>
-          <div className="col-md-3">
+          <div className="col-md-2">
             <input
               className="form-control"
-              placeholder="Email исполнителя"
-              value={executorEmail}
-              onChange={(event) => this.setState({ executorEmail: event.target.value })}
+              placeholder="Email ответственного"
+              value={responsibleEmail}
+              onChange={(event) => this.setState({ responsibleEmail: event.target.value })}
             />
           </div>
           <div className="col-md-2">
@@ -150,8 +168,8 @@ export class Home extends Component {
               className="form-control"
               placeholder="Логин"
               maxLength={12}
-              value={executorLogin}
-              onChange={(event) => this.setState({ executorLogin: event.target.value })}
+              value={responsibleLogin}
+              onChange={(event) => this.setState({ responsibleLogin: event.target.value })}
             />
           </div>
           <div className="col-md-2">
@@ -160,22 +178,24 @@ export class Home extends Component {
               type="password"
               placeholder="Пароль"
               maxLength={12}
-              value={executorPassword}
-              onChange={(event) => this.setState({ executorPassword: event.target.value })}
+              value={responsiblePassword}
+              onChange={(event) => this.setState({ responsiblePassword: event.target.value })}
             />
           </div>
           <div className="col-md-2">
-            <button type="submit" className="btn btn-primary w-100">Добавить</button>
+            <button type="submit" className="btn btn-primary home-btn-compact">Добавить</button>
           </div>
         </form>
 
 
-        <h3 className="mt-4 section-title">Исполнители</h3>        <table className="table table-striped">
+        <h3 className="mt-4 section-title">Исполнители</h3>
+        <table className="table table-striped">
           <thead>
             <tr>
               <th>Имя</th>
               <th>Email</th>
               <th>Права</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -184,13 +204,22 @@ export class Home extends Component {
                 <td>{executor.name}</td>
                 <td>{executor.email}</td>
                 <td>Могут менять статус задачи и писать комментарии</td>
+                <td className="text-end">
+                  <button
+                    type="button"
+                    className="btn btn-outline-danger btn-sm"
+                    onClick={() => this.handleDeleteExecutor(executor.id)}
+                  >
+                    Удалить
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
 
         <form className="row g-2" onSubmit={(event) => this.handleAddExecutor(event)}>
-          <div className="col-md-4">
+          <div className="col-md-3">
             <input
               className="form-control"
               placeholder="Имя исполнителя"
@@ -198,7 +227,7 @@ export class Home extends Component {
               onChange={(event) => this.setState({ executorName: event.target.value })}
             />
           </div>
-          <div className="col-md-4">
+          <div className="col-md-3">
             <input
               className="form-control"
               placeholder="Email исполнителя"
@@ -206,8 +235,8 @@ export class Home extends Component {
               onChange={(event) => this.setState({ executorEmail: event.target.value })}
             />
           </div>
-          <div className="col-md-4">
-            <button type="submit" className="btn btn-primary w-100">Добавить исполнителя</button>
+          <div className="col-md-2">
+            <button type="submit" className="btn btn-primary home-btn-compact">Добавить исполнителя</button>
           </div>
         </form>
       </div>

@@ -5,3 +5,7 @@
 .section-title {
   font-size: calc(1.75rem - 1px);
 }
+
+.home-btn-compact {
+  width: 66.6667%;
+}
