@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { apiClient } from '../api/client';
+import { GuestButton } from './GuestButton';
 
 export class GoalsPage extends Component {
   static displayName = GoalsPage.name;
@@ -66,7 +67,7 @@ export class GoalsPage extends Component {
             value={description}
             onChange={(event) => this.setState({ description: event.target.value })}
           />
-          <button className="btn btn-primary" type="submit">Добавить цель</button>
+          <GuestButton className="btn btn-primary" type="submit">Добавить цель</GuestButton>
         </form>
 
         {loading && <p>Загрузка...</p>}

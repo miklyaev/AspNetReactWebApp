@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { apiClient } from '../api/client';
+import { GuestButton } from './GuestButton';
 
 const statusOptions = ['К выполнению', 'В работе', 'Готово', 'Отменено'];
 const priorityOptions = ['Низкий', 'Средний', 'Высокий', 'Критический'];
@@ -157,7 +158,7 @@ export class TasksPage extends Component {
             </div>
           </div>
 
-          <button className="btn btn-primary" type="submit">Добавить задачу</button>
+          <GuestButton className="btn btn-primary" type="submit">Добавить задачу</GuestButton>
         </form>
 
         {loading && <p>Загрузка...</p>}
