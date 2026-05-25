@@ -47,10 +47,10 @@ namespace JiraClone.Data.Migrations
                 defaultValue: "");
 
             migrationBuilder.AddColumn<string>(
-                name: "Password",
+                name: "PasswordHash",
                 table: "Employees",
-                type: "character varying(12)",
-                maxLength: 12,
+                type: "character varying(512)",
+                maxLength: 512,
                 nullable: false,
                 defaultValue: "");
 
@@ -112,7 +112,7 @@ namespace JiraClone.Data.Migrations
                 table: "Employees");
 
             migrationBuilder.DropColumn(
-                name: "Password",
+                name: "PasswordHash",
                 table: "Employees");
 
             migrationBuilder.RenameTable(

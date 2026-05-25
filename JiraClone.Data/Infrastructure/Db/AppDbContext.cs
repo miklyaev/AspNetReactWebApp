@@ -59,9 +59,14 @@ public class AppDbContext : DbContext
             .IsRequired();
 
         modelBuilder.Entity<Employee>()
-            .Property(e => e.Password)
-            .HasMaxLength(12)
+            .Property(e => e.PasswordHash)
+            .HasMaxLength(512)
             .IsRequired();
+
+        modelBuilder.Entity<Employee>()
+            .Property(e => e.Position)
+            .HasMaxLength(128)
+            .IsRequired(false);
 
         // Executor -> Tasks (1:M)
         modelBuilder.Entity<Executor>()

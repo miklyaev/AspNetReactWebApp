@@ -1,6 +1,7 @@
 using JiraClone.Data.Domain.Entities;
 using JiraClone.Data.Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
 
 namespace AspNetReactApp.Controllers;
 
@@ -9,6 +10,7 @@ namespace AspNetReactApp.Controllers;
 public class LeadersController : ControllerBase
 {
     private readonly IDbService _dbService;
+    private readonly PasswordHasher<Employee> _passwordHasher = new();
 
     public LeadersController(IDbService dbService)
     {
@@ -33,8 +35,19 @@ public class LeadersController : ControllerBase
         var Leader = new Leader
         {
             Name = request.Name.Trim(),
-            Email = request.Email.Trim()
+            Email = request.Email.Trim(),
+            Login = request.Login.Trim(),
+            Position = request.Position.Trim()
         };
+
+        if (!string.IsNullOrWhiteSpace(request.Password))
+        {
+            Leader.PasswordHash = _passwordHasher.HashPassword(Leader, request.Password.Trim());
+        }
+        else
+        {
+            return BadRequest("Password is required.");
+        }
 
         var created = await _dbService.CreateLeaderAsync(Leader);
         return CreatedAtAction(nameof(GetLeaders), new { id = created.Id }, created);
@@ -47,9 +60,38 @@ public class LeadersController : ControllerBase
         return NoContent();
     }
 
+    [HttpPut("{id:int}")]
+    public async Task<ActionResult<Leader>> UpdateLeader(int id, [FromBody] LeaderRequest request)
+    {
+        var leader = await _dbService.GetLeaderByIdAsync(id);
+        if (leader == null)
+        {
+            return NotFound();
+        }
+
+        leader.Name = request.Name.Trim();
+        leader.Email = request.Email.Trim();
+        if (!string.IsNullOrWhiteSpace(request.Login))
+        {
+            leader.Login = request.Login.Trim();
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.Password))
+        {
+            leader.PasswordHash = _passwordHasher.HashPassword(leader, request.Password.Trim());
+        }
+        leader.Position = string.IsNullOrWhiteSpace(request.Position) ? null : request.Position.Trim();
+
+        await _dbService.UpdateEmployeeAsync(leader);
+        return Ok(leader);
+    }
+
     public sealed class LeaderRequest
     {
         public string Name { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
+        public string Login { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+        public string Position { get; set; } = string.Empty;
     }
 }

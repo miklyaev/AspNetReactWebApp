@@ -29,11 +29,15 @@ public interface IDbService
 
     // Executors
     Task<List<Executor>> GetExecutorsAsync();
+    Task<Executor?> GetExecutorByIdAsync(int id);
     Task<Executor> CreateExecutorAsync(Executor executor);
     Task DeleteExecutorAsync(int id);
 
+    Task UpdateEmployeeAsync(Employee employee);
+
     // Responsible Persons
     Task<List<Leader>> GetLeadersAsync();
+    Task<Leader?> GetLeaderByIdAsync(int id);
     Task<Leader> CreateLeaderAsync(Leader leader);
     Task DeleteLeaderAsync(int id);
     // Comments

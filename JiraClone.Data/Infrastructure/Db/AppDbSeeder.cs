@@ -1,5 +1,6 @@
 using JiraClone.Data.Domain.Entities;
 using JiraClone.Data.Domain.Enums;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace JiraClone.Data.Infrastructure.Db;
@@ -8,13 +9,21 @@ public static class AppDbSeeder
 {
     public static async Task SeedAsync(AppDbContext context)
     {
+        var passwordHasher = new PasswordHasher<Employee>();
+        const string defaultPassword = "password1234";
+
         if (!await context.Leaders.AnyAsync())
         {
             var leaders = new List<Leader>
             {
-                new() { Name = "Алексей Романов", Email = "alexey.romanov@example.com", Login = "alexey_roman", Password = "password1234" },
-                new() { Name = "Екатерина Морозова", Email = "ekaterina.morozova@example.com", Login = "katya_moroz", Password = "password1234" }
+                new() { Name = "Алексей Романов", Email = "alexey.romanov@example.com", Login = "alexey_roman" },
+                new() { Name = "Екатерина Морозова", Email = "ekaterina.morozova@example.com", Login = "katya_moroz" }
             };
+
+            foreach (var leader in leaders)
+            {
+                leader.PasswordHash = passwordHasher.HashPassword(leader, defaultPassword);
+            }
 
             await context.Leaders.AddRangeAsync(leaders);
             await context.SaveChangesAsync();
@@ -26,10 +35,15 @@ public static class AppDbSeeder
 
         var executors = new List<Executor>
         {
-            new() { Name = "Анна Петрова", Email = "anna.petrov@example.com", Login = "anna_petrova", Password = "password1234" },
-            new() { Name = "Иван Смирнов", Email = "ivan.smirnov@example.com", Login = "ivan_smirnov", Password = "password1234" },
-            new() { Name = "Мария Кузнецова", Email = "maria.kuznetsova@example.com", Login = "masha_kuznet", Password = "password1234" }
+            new() { Name = "Анна Петрова", Email = "anna.petrov@example.com", Login = "anna_petrova" },
+            new() { Name = "Иван Смирнов", Email = "ivan.smirnov@example.com", Login = "ivan_smirnov" },
+            new() { Name = "Мария Кузнецова", Email = "maria.kuznetsova@example.com", Login = "masha_kuznet" }
         };
+
+        foreach (var executor in executors)
+        {
+            executor.PasswordHash = passwordHasher.HashPassword(executor, defaultPassword);
+        }
 
         await context.Executors.AddRangeAsync(executors);
 

@@ -13,6 +13,12 @@ public class DbService : IDbService
         _context = context;
     }
 
+    public async Task UpdateEmployeeAsync(Employee employee)
+    {
+        _context.Entry(employee).State = EntityState.Modified;
+        await _context.SaveChangesAsync();
+    }
+
     // Goals
     public async Task<List<Goal>> GetGoalsAsync() => 
         await _context.Goals.Include(g => g.Projects).ThenInclude(p => p.Tasks).ToListAsync();
@@ -122,6 +128,9 @@ public class DbService : IDbService
     public async Task<List<Executor>> GetExecutorsAsync() =>
         await _context.Executors.ToListAsync();
 
+    public async Task<Executor?> GetExecutorByIdAsync(int id) =>
+        await _context.Executors.FirstOrDefaultAsync(x => x.Id == id);
+
     public async Task<Executor> CreateExecutorAsync(Executor executor)
     {
         _context.Executors.Add(executor);
@@ -142,6 +151,9 @@ public class DbService : IDbService
     // Responsible Persons
     public async Task<List<Leader>> GetLeadersAsync() =>
         await _context.Leaders.ToListAsync();
+
+    public async Task<Leader?> GetLeaderByIdAsync(int id) =>
+        await _context.Leaders.FirstOrDefaultAsync(x => x.Id == id);
 
     public async Task<Leader> CreateLeaderAsync(Leader leader)
     {

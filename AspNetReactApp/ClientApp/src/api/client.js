@@ -44,10 +44,12 @@ export const apiClient = {
   getExecutors: () => request('/api/executors'),
   createExecutor: (payload) => request('/api/executors', { method: 'POST', body: JSON.stringify(payload) }),
   deleteExecutor: (id) => request(`/api/executors/${id}`, { method: 'DELETE' }),
+  updateExecutor: (id, payload) => request(`/api/executors/${id}`, { method: 'PUT', body: JSON.stringify(payload) }),
 
   getLeaders: () => request('/api/leaders'),
   createLeader: (payload) => request('/api/leaders', { method: 'POST', body: JSON.stringify(payload) }),
   deleteLeader: (id) => request(`/api/leaders/${id}`, { method: 'DELETE' }),
+  updateLeader: (id, payload) => request(`/api/leaders/${id}`, { method: 'PUT', body: JSON.stringify(payload) }),
 
   getTimeEntries: (taskId) => request(withQuery('/api/timeentries', 'taskId', taskId)),
   createTimeEntry: (payload) => request('/api/timeentries', { method: 'POST', body: JSON.stringify(payload) })
