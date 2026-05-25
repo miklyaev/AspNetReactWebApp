@@ -1,25 +1,25 @@
-## Project Overview
+## Обзор проекта
 
-**AspNetReactWebApp** is a full-stack web application combining:
-- **Backend**: ASP.NET Core 8.0 with C# (.NET 8.0)
-- **Frontend**: React 18.2.0 with Create React App (TypeScript 4.9.5)
-- **Database**: PostgreSQL 16 (via Docker)
-- **Infrastructure**: Docker & Docker Compose for containerization, GitHub Actions for CI/CD
+AspNetReactWebApp — full-stack веб-приложение, которое включает в себя:
+- Backend: ASP.NET Core 8.0 на C# (.NET 8.0)
+- Frontend: React 18.2.0 (Create React App, часть фронтенда — TypeScript)
+- База данных: PostgreSQL 16 (в контейнере Docker)
+- Инфраструктура: Docker и docker-compose для контейнеризации, GitHub Actions для CI/CD
 
-This is a monorepo structure with a single .slnx solution containing the main ASP.NET Core project.
+Структура репозитория — монорепозиторий с единственным решением (.sln), содержащим основной проект ASP.NET Core.
 
 ## Architecture Overview
 
-### Backend Structure (`AspNetReactApp/`)
-- **Program.cs**: Minimal hosting (top-level statements), регистрация `AppDbContext` (Npgsql), `IDbService`/`DbService` (Scoped), контроллеры + CORS, авто-миграции и сидирование при старте
-- **Controllers/**: 8 бизнес-контроллеров + 1 тестовый (см. раздел «API-контроллеры»)
-- **Pages/**: Razor Pages для обработки ошибок (Error.cshtml)
-- **appsettings.json / appsettings.Development.json**: Конфигурация логирования и строки подключения к PostgreSQL
-- **AspNetReactApp.csproj**: Web SDK, SPA proxy для React dev-сервера, авто-восстановление npm
-### Frontend Structure (`AspNetReactApp/ClientApp/`)
-- **src/index.js**: Entry point, оборачивает приложение в `BrowserRouter` (basename из `<base href>`)
-- **src/App.js**: Корневой React-компонент, рендерит `<Layout>` и `<Routes>` из `AppRoutes`
-- **src/AppRoutes.js**: Клиентская маршрутизация (5 маршрутов)
+### Структура бэкенда (AspNetReactApp/)
+- Program.cs: минимальный хостинг (top-level statements), регистрация AppDbContext (Npgsql), DI для IDbService/DbService (Scoped), контроллеры, CORS, авто-применение миграций и сидирование при старте
+- Controllers/: бизнес-контроллеры для API (несколько контроллеров) и тестовый контроллер
+- Pages/: Razor Pages (например, Error.cshtml для ошибок)
+- appsettings.json / appsettings.Development.json: конфигурация логирования и строки подключения к PostgreSQL
+- AspNetReactApp.csproj: Web SDK, настройка SPA proxy для React dev-сервера и интеграция npm
+### Структура фронтенда (AspNetReactApp/ClientApp/)
+- src/index.js: точка входа, приложение оборачивается в BrowserRouter (basename берётся из `<base href>`)
+- src/App.js: корневой React-компонент, рендерит Layout и маршруты из AppRoutes
+- src/AppRoutes.js: клиентская маршрутизация (несколько маршрутов)
 
 | Маршрут | Компонент | Описание |
 |---------|-----------|----------|
@@ -27,100 +27,100 @@ This is a monorepo structure with a single .slnx solution containing the main AS
 | `/goals` | `GoalsPage` | Цели: карточки с прогрессом, проектами и задачами |
 | `/projects` | `ProjectsPage` | Проекты: создание, выбор цели, отображение |
 | `/tasks` | `TasksPage` | Задачи: CRUD с выбором проекта, исполнителя, статуса, приоритета |
-| `/time` | `TimeEntriesPage` | Учёт времени: запись часов по задачам и исполнителям |
+| `/time` | `TimeEntriesPage` | Учёт времени: запись часов по задачам и исполнителями |
 
-- **src/components/**: React Class Components (JavaScript)
-  - `Layout.js` — корневой layout с `<NavMenu />` + `<Container>`
-  - `NavMenu.js` — навигационная панель (reactstrap Navbar): Главная, Цели, Проекты, Задачи, Время
-  - `Home.js` — отображает таблицы Leaders и Executors, формы добавления
-  - `GoalsPage.js` — аккордеон целей с вложенными проектами/задачами, прогресс-бары
-  - `ProjectsPage.js` — форма создания проекта с выбором цели, список проектов
-  - `TasksPage.js` — полный CRUD задач: выбор проекта, исполнителя, статуса, приоритета
-  - `TimeEntriesPage.js` — создание записей учёта времени (шаг 0.25h), просмотр
-- **src/api/client.js**: API-клиент (см. раздел «Клиентский API»)
-- **public/**: Статические ресурсы и `index.html`
-- **setupProxy.js**: Dev-прокси для `/api/*` → ASP.NET backend
-- **package.json**: npm-зависимости и скрипты (React 18, React Router 6, Reactstrap, Bootstrap 5)
-### Сущности доменной модели (`JiraClone.Data/Domain`)
+- src/components/: React-компоненты (Class Components / JS)
+  - Layout.js — корневой layout с NavMenu и контейнером
+  - NavMenu.js — навигационная панель (reactstrap Navbar)
+  - Home.js — таблицы Leaders и Executors, формы добавления
+  - GoalsPage.js — аккордеон целей с проектами и задачами, прогресс-бары
+  - ProjectsPage.js — создание проекта с выбором цели
+  - TasksPage.js — CRUD задач: проект, исполнитель, статус, приоритет
+  - TimeEntriesPage.js — создание и просмотр записей учёта времени (шаг 0.25ч)
+- src/api/client.js: API-клиент для вызовов backend
+- public/: статические ресурсы и index.html
+- setupProxy.js: dev-proxy для перенаправления /api/* на бэкенд в режиме разработки
+- package.json: npm-зависимости и скрипты (React, React Router, Reactstrap, Bootstrap и т.д.)
+### Сущности доменной модели (JiraClone.Data/Domain)
 
-#### Базовый класс: `BaseEntity`
+#### Базовый класс: BaseEntity
 | Поле | Тип | Описание |
 |------|-----|----------|
-| `Id` | `int` | Первичный ключ |
-| `CreatedAt` | `DateTime` | Дата создания (автоустановка в `SaveChanges`) |
-| `UpdatedAt` | `DateTime` | Дата обновления (автообновление в `SaveChanges`) |
+| Id | int | Первичный ключ |
+| CreatedAt | DateTime | Дата создания (устанавливается автоматически в SaveChanges) |
+| UpdatedAt | DateTime | Дата обновления (обновляется автоматически в SaveChanges) |
 
-#### `Goal` (Цель) — `JiraClone.Data/Domain/Entities/Goal.cs`
+#### Goal (Цель) — JiraClone.Data/Domain/Entities/Goal.cs
 | Поле | Тип | Описание |
 |------|-----|----------|
-| `Title` | `string` | Название цели |
-| `Description` | `string?` | Описание (nullable) |
-| `Progress` | `decimal` (вычисл.) | Среднее арифметическое `Progress` всех Projects (0 если нет) |
-| `Projects` | `ICollection<Project>` | Связь 1:M → Project (Cascade) |
+| Title | string | Название цели |
+| Description | string? | Описание (nullable) |
+| Progress | decimal (вычисляемое) | Средний прогресс проектов (0, если проектов нет) |
+| Projects | ICollection<Project> | Связь 1:M → Project (удаление — каскад)
 
-#### `Project` (Проект) — `JiraClone.Data/Domain/Entities/Project.cs`
+#### Project (Проект) — JiraClone.Data/Domain/Entities/Project.cs
 | Поле | Тип | Описание |
 |------|-----|----------|
-| `Title` | `string` | Название проекта |
-| `Description` | `string?` | Описание (nullable) |
-| `GoalId` | `int` | FK → Goal |
-| `Goal` | `Goal?` | Навигационное свойство |
-| `Progress` | `decimal` (вычисл.) | % задач со статусом `Done`; 0 если задач нет |
-| `Tasks` | `ICollection<TaskItem>` | Связь 1:M → TaskItem (Cascade) |
+| Title | string | Название проекта |
+| Description | string? | Описание (nullable) |
+| GoalId | int | Внешний ключ → Goal |
+| Goal | Goal? | Навигационное свойство |
+| Progress | decimal (вычисляемое) | Процент задач в статусе Done (0 если задач нет) |
+| Tasks | ICollection<TaskItem> | Связь 1:M → TaskItem (удаление — каскад)
 
-#### `TaskItem` (Задача) — `JiraClone.Data/Domain/Entities/TaskItem.cs`
+#### TaskItem (Задача) — JiraClone.Data/Domain/Entities/TaskItem.cs
 | Поле | Тип | Описание |
 |------|-----|----------|
-| `Title` | `string` | Название задачи |
-| `Description` | `string?` | Описание (nullable) |
-| `Status` | `TaskStatus` | Статус: `ToDo`, `InProgress`, `Done`, `Canceled` (по умолчанию `ToDo`) |
-| `Priority` | `TaskPriority` | Приоритет: `Low`, `Medium`, `High`, `Critical` (по умолчанию `Medium`) |
-| `ProjectId` | `int` | FK → Project |
-| `Project` | `Project?` | Навигационное свойство |
-| `ExecutorId` | `int?` | FK → Executor (nullable) |
-| `Executor` | `Executor?` | Навигационное свойство |
-| `Comments` | `ICollection<Comment>` | Связь 1:M → Comment (Cascade) |
-| `TimeEntries` | `ICollection<TimeEntry>` | Связь 1:M → TimeEntry (Cascade) |
+| Title | string | Название задачи |
+| Description | string? | Описание (nullable) |
+| Status | TaskStatus | Статус: ToDo, InProgress, Done, Canceled (по умолчанию ToDo) |
+| Priority | TaskPriority | Приоритет: Low, Medium, High, Critical (по умолчанию Medium) |
+| ProjectId | int | Внешний ключ → Project |
+| Project | Project? | Навигационное свойство |
+| ExecutorId | int? | Внешний ключ → Executor (nullable) |
+| Executor | Executor? | Навигационное свойство |
+| Comments | ICollection<Comment> | Связь 1:M → Comment (удаление — каскад) |
+| TimeEntries | ICollection<TimeEntry> | Связь 1:M → TimeEntry (удаление — каскад)
 
-#### `Executor` (Исполнитель) — `JiraClone.Data/Domain/Entities/Executor.cs`
+#### Executor (Исполнитель) — JiraClone.Data/Domain/Entities/Executor.cs
 | Поле | Тип | Описание |
 |------|-----|----------|
-| `Name` | `string` | Имя исполнителя |
-| `Email` | `string` | Email |
-| `Tasks` | `ICollection<TaskItem>` | Назначенные задачи (SetNull при удалении) |
+| Name | string | Имя исполнителя |
+| Email | string | Email |
+| Tasks | ICollection<TaskItem> | Назначенные задачи (при удалении исполнителя — FK устанавливается в NULL)
 
-#### `Leader` (Ответственное лицо) — `JiraClone.Data/Domain/Entities/Leader.cs`
+#### Leader (Руководитель) — JiraClone.Data/Domain/Entities/Leader.cs
 | Поле | Тип | Описание |
 |------|-----|----------|
-| `Name` | `string` | Имя |
-| `Email` | `string` | Email |
+| Name | string | Имя |
+| Email | string | Email |
 
-*Не имеет навигационных связей — изолированная справочная сущность.*
+Leader не имеет навигационных связей и используется как справочная сущность.
 
-#### `Comment` (Комментарий) — `JiraClone.Data/Domain/Entities/Comment.cs`
+#### Comment (Комментарий) — JiraClone.Data/Domain/Entities/Comment.cs
 | Поле | Тип | Описание |
 |------|-----|----------|
-| `Text` | `string` | Текст комментария |
-| `TaskItemId` | `int` | FK → TaskItem |
-| `TaskItem` | `TaskItem?` | Навигационное свойство |
-| `AuthorId` | `int` | FK → Executor |
-| `Author` | `Executor?` | Автор комментария |
+| Text | string | Текст комментария |
+| TaskItemId | int | Внешний ключ → TaskItem |
+| TaskItem | TaskItem? | Навигационное свойство |
+| AuthorId | int | Внешний ключ → Executor |
+| Author | Executor? | Автор комментария |
 
-#### `TimeEntry` (Запись учёта времени) — `JiraClone.Data/Domain/Entities/TimeEntry.cs`
+#### TimeEntry (Запись учёта времени) — JiraClone.Data/Domain/Entities/TimeEntry.cs
 | Поле | Тип | Описание |
 |------|-----|----------|
-| `Hours` | `decimal(18,2)` | Количество часов |
-| `Date` | `DateTime` | Дата записи (по умолчанию `DateTime.UtcNow`) |
-| `TaskItemId` | `int` | FK → TaskItem |
-| `TaskItem` | `TaskItem?` | Навигационное свойство |
-| `ExecutorId` | `int` | FK → Executor |
-| `Executor` | `Executor?` | Навигационное свойство |
+| Hours | decimal(18,2) | Количество часов |
+| Date | DateTime | Дата записи (по умолчанию DateTime.UtcNow) |
+| TaskItemId | int | Внешний ключ → TaskItem |
+| TaskItem | TaskItem? | Навигационное свойство |
+| ExecutorId | int | Внешний ключ → Executor |
+| Executor | Executor? | Навигационное свойство |
 
-#### Перечисления (`Domain/Enums`)
+#### Перечисления (Domain/Enums)
 | Enum | Значения |
 |------|----------|
-| `TaskStatus` | `ToDo`, `InProgress`, `Done`, `Canceled` |
-| `TaskPriority` | `Low`, `Medium`, `High`, `Critical` |
+| TaskStatus | ToDo, InProgress, Done, Canceled |
+| TaskPriority | Low, Medium, High, Critical |
 
 #### ER-диаграмма связей
 ```
@@ -136,175 +136,186 @@ Goal ──1:M──> Project ──1:M──> TaskItem ──1:M──> Comment
                                      TaskItem.ExecutorId
 ```
 
-#### Правила каскадного удаления (`AppDbContext.OnModelCreating`)
-| Родитель → Дочерний | FK | Delete Behavior |
-|---------------------|-----|-----------------|
-| Goal → Project | `GoalId` | **Cascade** |
-| Project → TaskItem | `ProjectId` | **Cascade** |
-| TaskItem → Comment | `TaskItemId` | **Cascade** |
-| TaskItem → TimeEntry | `TaskItemId` | **Cascade** |
-| Executor → TaskItem | `ExecutorId` | **SetNull** |
-| Executor → Comment | `AuthorId` | **Restrict** |
-| Executor → TimeEntry | `ExecutorId` | **Cascade** |
--### Key Integration Points
-1. **SPA Proxy**: The .csproj file uses Microsoft.AspNetCore.SpaProxy to proxy React dev server during development
-2. **Build Pipeline**: During publish, React is built (`npm run build`) and output is copied to `wwwroot/` for serving as static files
-3. **API Routing**: Backend serves `/api/*` routes; React SPA is fallback route via `MapFallbackToFile("index.html")`
-4. **Forwarded Headers**: Program.cs configures X-Forwarded-For/X-Forwarded-Proto for reverse proxy support (e.g., Nginx)
+#### Правила каскадного удаления (AppDbContext.OnModelCreating)
+| Родитель → Дочерний | FK | Поведение при удалении |
+|---------------------|-----|----------------------|
+| Goal → Project | GoalId | Cascade |
+| Project → TaskItem | ProjectId | Cascade |
+| TaskItem → Comment | TaskItemId | Cascade |
+| TaskItem → TimeEntry | TaskItemId | Cascade |
+| Executor → TaskItem | ExecutorId | SetNull |
+| Executor → Comment | AuthorId | Restrict |
+| Executor → TimeEntry | ExecutorId | Cascade |
+### Важные интеграционные моменты
+1. SPA Proxy: в .csproj настроен Microsoft.AspNetCore.SpaProxy для проксирования вызовов к React dev-серверу в режиме разработки
+2. Конвейер сборки: при публикации React собирается (npm run build), результат копируется в wwwroot/ и отдается как статические файлы
+3. Маршрутизация API: бэкенд обслуживает маршруты /api/*; SPA отдаёт fallback в виде index.html через MapFallbackToFile("index.html")
+4. Forwarded Headers: в Program.cs настроена обработка X-Forwarded-For / X-Forwarded-Proto для корректной работы за обратным прокси (Nginx и т.п.)
 
-## Development Commands
+## Команды для разработки
 
 ### Backend (ASP.NET Core)
 ```bash
-# Restore dependencies and build the solution
+# Восстановить зависимости и собрать решение
 dotnet build
 
-# Run the ASP.NET Core application (serves on https://localhost:7000 or similar)
+# Запустить приложение ASP.NET Core (например, https://localhost:7000)
 dotnet run
 
-# Publish production build
+# Опубликовать production-сборку
 dotnet publish -c Release
 ```
 
-### Frontend (React in ClientApp/)
+### Frontend (React в ClientApp/)
 ```bash
-# Install dependencies
+# Установить зависимости
 npm install
 
-# Start development server with hot reload (proxy configured for /api calls)
-# prestart runs aspnetcore-https.js and aspnetcore-react.js to configure dev HTTPS certs
+# Запустить dev сервер с hot-reload (proxy для /api настроен)
+# prestart выполняет скрипты для настройки dev HTTPS сертификатов
 npm start
 
-# Build for production
+# Сборка для production
 npm run build
 
-# Run linting
+# Запуск линтинга
 npm run lint
 
-# Run tests
+# Запуск тестов
 npm run test
 ```
 
-### Full Stack Development
-From the root directory, running `dotnet run` in the AspNetReactApp folder will:
-1. Automatically invoke npm install if node_modules is missing (via MSBuild target)
-2. Start the ASP.NET Core application
-3. The SPA proxy routes React dev server calls automatically
+### Полная разработка (Full stack)
+Если из корня проекта запустить dotnet run в папке AspNetReactApp, то:
+1. Через MSBuild-таргет при необходимости автоматически выполнится npm install (если отсутствует node_modules)
+2. Запустится приложение ASP.NET Core
+3. SPA proxy будет перенаправлять запросы к React dev-серверу в режиме разработки
 
-During development:
-- React dev server runs on `https://localhost:44418`
-- ASP.NET backend runs on `https://localhost:7000` (or similar)
-- API calls are proxied via setupProxy.js in development
-- In production, React is pre-built and served as static files from wwwroot/
+В режиме разработки:
+- React dev-сервер работает на https://localhost:44418
+- ASP.NET backend работает на https://localhost:7000 (пример)
+- Запросы к API проксируются через setupProxy.js
+В production React заранее собирается и файлы обслуживаются из wwwroot/
 
-## Docker & Containerization
+
+## Docker и контейнеризация
 
 ### Dockerfile
-Multi-stage build:
-1. **build stage**: Uses `mcr.microsoft.com/dotnet/sdk:8.0`, installs Node.js 20, builds .NET and React
-2. **publish stage**: Publishes .NET application
-3. **final stage**: Uses `mcr.microsoft.com/dotnet/aspnet:8.0`, runs on port 5000
+Многоступенчатая сборка:
+1. build stage: на базе mcr.microsoft.com/dotnet/sdk:8.0, устанавливается Node.js 20, собираются .NET и React
+2. publish stage: публикация .NET-приложения
+3. final stage: на базе mcr.microsoft.com/dotnet/aspnet:8.0, контейнер слушает порт 5000
 
 ### docker-compose.yml
-Services:
-- **db**: PostgreSQL 16-alpine container
+Сервисы:
+- db: контейнер PostgreSQL 16-alpine
   - Database: TestAiNvkzDb
-  - Credentials: test / test_password (note: change in production)
-  - Port: 5432
-  - Volumes: postgres_data (persists data)
-- **web**: ASP.NET React application
-  - Built from ./Dockerfile
-  - Depends on db service
-  - Port: 5000
-  - Environment: ASPNETCORE_ENVIRONMENT=Production
+  - Учетные данные: test / test_password (измените перед деплоем в production)
+  - Порт: 5432
+  - Volume: postgres_data (для персистентности данных)
+- web: ASP.NET React приложение
+  - Собирается по Dockerfile
+  - Зависит от db
+  - Порт: 5000
+  - Переменные окружения: ASPNETCORE_ENVIRONMENT=Production
 
-## CI/CD Pipeline
+## CI/CD
 
-### GitHub Actions (`.github/workflows/docker-publish.yml`)
-Trigger: Push to main branch, PRs to main, version tags (v*.*.*)
-- Builds Docker image from `./AspNetReactApp` context
-- Pushes to GitHub Container Registry (ghcr.io)
-- Uses Docker's layer caching (type=gha)
-- Automated on releases and pull requests
+### GitHub Actions (.github/workflows/docker-publish.yml)
+Триггеры: push в main, PR в main, теги релизов (v*.*.*)
+- Собирает Docker-образ из контекста ./AspNetReactApp
+- Публикует образ в GitHub Container Registry (ghcr.io)
+- Использует кэширование слоёв Docker (type=gha)
+- Автоматизация для релизов и PR
 
-## Build & Deployment Flow
+## Схема сборки и деплоя
 
-### Development Build
+### Сборка для разработки
 ```
 dotnet build
   ↓
-MSBuild target checks for node_modules
+MSBuild проверяет наличие node_modules
   ↓
-npm install (if needed)
+npm install (если нужно)
   ↓
-React dev server configured via setupProxy.js
+React dev-сервер (setupProxy.js) настраивается
   ↓
-ASP.NET SPA proxy routes to React on :44418
+SPA proxy перенаправляет вызовы к React на :44418
 ```
 
-### Production Build
+### Сборка для production
 ```
 dotnet publish -c Release
   ↓
 npm install + npm run build
   ↓
-React output (./build/) copied to wwwroot/
+Выходной каталог React (./build/) копируется в wwwroot/
   ↓
-Static files served directly by ASP.NET
+Статические файлы обслуживаются ASP.NET
   ↓
-API routes (/api/*) handled by controllers
+Маршруты API (/api/*) обрабатываются контроллерами
   ↓
-Fallback to index.html for SPA routing
+SPA fallback — index.html
 ```
 
 ### Docker Build
 ```
-Docker build (multi-stage from AspNetReactApp/)
+Docker build (multi-stage из AspNetReactApp/)
   ↓
 SDK stage: dotnet restore + build + publish
   ↓
-Final stage: copy published app
+Final stage: копирование опубликованного приложения
   ↓
-Kestrel on port 5000
+Kestrel слушает порт 5000
 ```
 
-## Project File Configuration Notes
+## Примечания по конфигурации проекта
 
 ### AspNetReactApp.csproj
-- `<TargetFramework>net8.0</TargetFramework>`: .NET 8 target
-- `<Nullable>enable</Nullable>`: Nullable reference types enabled
-- `<SpaRoot>ClientApp\</SpaRoot>`: React app location
-- `<SpaProxyServerUrl>https://localhost:44418</SpaProxyServerUrl>`: Dev proxy URL
-- `<ImplicitUsings>enable</ImplicitUsings>`: Top-level statements and implicit usings
+- `<TargetFramework>net8.0</TargetFramework>`: таргет .NET 8
+- `<Nullable>enable</Nullable>`: включены nullable reference types
+- `<SpaRoot>ClientApp\</SpaRoot>`: расположение React-приложения
+- `<SpaProxyServerUrl>https://localhost:44418</SpaProxyServerUrl>`: URL dev-прокси
+- `<ImplicitUsings>enable</ImplicitUsings>`: implicit usings и top-level statements
 - MSBuild targets:
-  - `DebugEnsureNodeEnv` (before Build in Debug): Checks Node.js, runs npm install
-  - `PublishRunWebpack` (after ComputeFilesToPublish): Runs npm build, copies output to wwwroot
+  - DebugEnsureNodeEnv (перед Build в Debug): проверяет Node.js и выполняет npm install при необходимости
+  - PublishRunWebpack (после ComputeFilesToPublish): выполняет npm run build и копирует output в wwwroot
 
-## Environment Configuration
-- **Development**: Uses appsettings.Development.json (enhanced logging for SpaProxy)
-- **Production**: Uses appsettings.json (minimal logging)
-- **Docker**: Sets ASPNETCORE_ENVIRONMENT=Production in docker-compose.yml
-- **Database Connection**: Currently configured in docker-compose.yml; can be moved to appsettings.json as needed
+## Конфигурация окружений
+- Development: используется appsettings.Development.json (расширенное логирование, настройки для SpaProxy)
+- Production: используется appsettings.json (минимальное логирование)
+- Docker: в docker-compose.yml задаётся ASPNETCORE_ENVIRONMENT=Production
+- Подключение к БД: настроено в docker-compose.yml (можно переместить в appsettings при необходимости)
 
-## Key Dependencies
+## Ключевые зависимости
 
-### NuGet Packages
-- Microsoft.AspNetCore.SpaProxy (8.0.0): Enables React dev server proxying
+### NuGet
+- Microsoft.AspNetCore.SpaProxy (8.0.0): проксирование React dev-сервера
 
-### npm Packages (Frontend)
+### npm (фронтенд)
 - react (18.2.0), react-dom (18.2.0)
-- react-router-dom (6.11.0): Client-side routing
-- reactstrap (9.1.9), bootstrap (5.2.3): UI framework
-- workbox-* (6.5.4): Service worker caching for PWA
-- oidc-client (1.11.5): OpenID Connect authentication support
-- jest, eslint: Testing and linting (via react-scripts)
+- react-router-dom (6.11.0): маршрутизация на клиенте
+- reactstrap (9.1.9), bootstrap (5.2.3): UI
+- workbox-* (6.5.4): сервис-воркеры для PWA
+- oidc-client (1.11.5): клиент OIDC (в проекте присутствует, но интеграция может быть не завершена)
+- jest, eslint: тестирование и линтинг (через react-scripts)
 
-## Important Notes for Future Development
+## Важные замечания для дальнейшей разработки
 
-1. **API Contracts**: Controllers return data that React components fetch via `/api/` routes (example: WeatherForecastController)
-2. **Proxy Configuration**: setupProxy.js handles development-only proxy; production doesn't need it
-3. **Database Migrations**: Настроены EF Core миграции в проекте `JiraClone.Data` (папка `Migrations/`); для управления используйте `ef-migrate.bat`
-4. **Authentication**: oidc-client is installed but not yet integrated; OAuth/OIDC setup may be in progress
-5. **Forwarded Headers**: Essential for deployment behind reverse proxies (Nginx, etc.); already configured in Program.cs
-6. **PWA Features**: Workbox is included; service worker registration available (serviceWorkerRegistration.js)
-7. **Environment Variables**: React uses REACT_APP_* prefix; see ClientApp/.env files for examples
+1. API-контракты: контроллеры возвращают данные, которые фронтенд запрашивает через /api/* (пример: WeatherForecastController)
+2. Proxy: setupProxy.js используется только в режиме разработки для перенаправления вызовов к React dev-серверу; в production прокси не нужен
+3. Миграции базы данных: EF Core миграции находятся в проекте JiraClone.Data (папка Migrations). Для управления миграциями в корне решения есть скрипты, также можно использовать ef-migrate.bat
+4. Аутентификация: в проекте установлен oidc-client, но интеграция OIDC/OAuth может быть не завершена
+5. Forwarded Headers: необходимы при развёртывании за обратным прокси (Nginx и т.п.); уже настроено в Program.cs
+6. PWA: Workbox включён, регистрация service worker доступна (serviceWorkerRegistration.js)
+7. Переменные окружения для React: используют префикс REACT_APP_*; см. ClientApp/.env
+
+8. Аутентификация и изменения модели Employee: модель пользователей/сотрудников вынесена в абстрактный класс Employee (реализуемый Leader и Executor). Employee содержит поля Login, PasswordHash и опциональное Position. Пароли не хранятся в открытом виде — для хеширования используется BCrypt. В сидере по умолчанию создаются пользователи Leader и Executor с логинами и PasswordHash, полученным из пароля-значения по умолчанию "password1234". Обязательно замените этот пароль в production.
+
+9. Миграции, связанные с аутентификацией и профилем сотрудников: в репозитории добавлены миграции для колонок пароля и позиции (например, 20260525104309_PasswordHashAndPosition и 20260624120000_AddEmployeePosition). Перед запуском приложения локально убедитесь, что база данных актуальна:
+
+```bash
+dotnet ef database update --project JiraClone.Data --startup-project AspNetReactApp
+```
+
+См. также папку JiraClone.Data/Migrations для подробностей по миграциям.
