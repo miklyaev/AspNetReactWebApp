@@ -20,6 +20,20 @@ export class NavMenu extends Component {
     });
   }
 
+  renderProfileCaption() {
+    const me = this.props.me;
+
+    if (!me || !me.isAuthenticated) {
+      return 'Профиль: гость';
+    }
+
+    if (me.isAdmin) {
+      return 'Профиль: admin';
+    }
+
+    return `Профиль: ${me.name}`;
+  }
+
   render() {
     return (
       <header>
@@ -48,6 +62,22 @@ export class NavMenu extends Component {
               </NavItem>
               <NavItem>
                 <NavLink tag={Link} className="text-white" to="/time">Время</NavLink>
+              </NavItem>
+
+              <NavItem>
+                <NavLink
+                  href="#"
+                  className="text-white text-nowrap"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (this.props.onToggleProfile) {
+                      this.props.onToggleProfile();
+                    }
+                  }}
+                  title={this.props.isProfileOpen ? 'Скрыть панель профиля' : 'Показать панель профиля'}
+                >
+                  {this.renderProfileCaption()}
+                </NavLink>
               </NavItem>
             </ul>
           </Collapse>        </Navbar>

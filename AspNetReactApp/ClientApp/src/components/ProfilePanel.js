@@ -26,6 +26,12 @@ export class ProfilePanel extends Component {
     this.load();
   }
 
+  notifyMeChanged(me) {
+    if (this.props.onMeChanged) {
+      this.props.onMeChanged(me);
+    }
+  }
+
   async load() {
     try {
       const me = await apiClient.me();
@@ -39,6 +45,7 @@ export class ProfilePanel extends Component {
       }
 
       this.setState({ loading: false, me, profile, error: null });
+      this.notifyMeChanged(me);
     } catch (e) {
       this.setState({ loading: false, error: e.message });
     }
