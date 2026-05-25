@@ -2,14 +2,7 @@ const defaultHeaders = {
   'Content-Type': 'application/json'
 };
 
-let guestMode = false;
-
 async function request(path, options = {}) {
-  const method = (options.method || 'GET').toUpperCase();
-  if (guestMode && method !== 'GET') {
-    throw new Error('В гостевом профиле редактирование запрещено! Войдите в свой профиль.');
-  }
-
   const response = await fetch(path, {
     ...options,
     credentials: 'include',
@@ -40,10 +33,6 @@ function withQuery(basePath, key, value) {
 }
 
 export const apiClient = {
-  setGuestMode: (enabled) => {
-    guestMode = !!enabled;
-  },
-
   login: (payload) => request('/api/auth/login', { method: 'POST', body: JSON.stringify(payload) }),
   logout: () => request('/api/auth/logout', { method: 'POST' }),
   me: () => request('/api/auth/me'),

@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { apiClient } from '../api/client';
-import { GuestButton } from './GuestButton';
 
 export class ProjectsPage extends Component {
   static displayName = ProjectsPage.name;
@@ -90,7 +89,7 @@ export class ProjectsPage extends Component {
               <option key={goal.id} value={goal.id}>{goal.title}</option>
             ))}
           </select>
-          <GuestButton className="btn btn-primary" type="submit">Добавить проект</GuestButton>
+          <button className="btn btn-primary" type="submit">Добавить проект</button>
         </form>
 
         {loading && <p>Загрузка...</p>}

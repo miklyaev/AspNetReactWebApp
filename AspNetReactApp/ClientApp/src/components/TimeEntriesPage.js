@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { apiClient } from '../api/client';
-import { GuestButton } from './GuestButton';
 
 export class TimeEntriesPage extends Component {
   static displayName = TimeEntriesPage.name;
@@ -113,7 +112,7 @@ export class TimeEntriesPage extends Component {
             onChange={(event) => this.setState({ date: event.target.value })}
           />
 
-          <GuestButton className="btn btn-primary" type="submit">Сохранить</GuestButton>
+          <button className="btn btn-primary" type="submit">Сохранить</button>
         </form>
 
         {loading && <p>Загрузка...</p>}

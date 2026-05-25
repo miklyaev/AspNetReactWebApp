@@ -1,6 +1,5 @@
 import { Component } from 'react';
 import { apiClient } from '../api/client';
-import { GuestButton } from './GuestButton';
 import './Home.css';
 export class Home extends Component {
   static displayName = Home.name;
@@ -74,9 +73,6 @@ export class Home extends Component {
   }
 
   async handleApplyEdit() {
-    if (window.__guestMode) {
-      return;
-    }
     const { editKind, editId, editName, editEmail, editLogin, editPassword, editPosition } = this.state;
     if (!editKind || editId == null) {
       return;
@@ -107,9 +103,6 @@ export class Home extends Component {
   }
 
   async handleDeleteLeader(id, name) {
-    if (window.__guestMode) {
-      return;
-    }
     const safeName = (name ?? '').toString();
     if (!window.confirm(`Вы уверены что хотите удалить сотрудника ${safeName}?`)) {
       return;
@@ -157,9 +150,6 @@ export class Home extends Component {
   }
 
   async handleDeleteExecutor(id, name) {
-    if (window.__guestMode) {
-      return;
-    }
     const safeName = (name ?? '').toString();
     if (!window.confirm(`Вы уверены что хотите удалить сотрудника ${safeName}?`)) {
       return;
@@ -242,7 +232,6 @@ export class Home extends Component {
                     className="btn btn-outline-secondary btn-sm me-2"
                     title="Редактировать"
                     onClick={() => this.openEditModal('leader', leader)}
-                    disabled={window.__guestMode}
                   >
                     ✎
                   </button>
@@ -251,7 +240,6 @@ export class Home extends Component {
                     className="btn btn-outline-danger btn-sm"
                     onClick={() => this.handleDeleteLeader(leader.id, leader.name)}
                     title="Удалить"
-                    disabled={window.__guestMode}
                   >
                     🗑
                   </button>
@@ -311,7 +299,7 @@ export class Home extends Component {
             />
           </div>
             <div className="col-md-2">
-              <GuestButton type="submit" className="btn btn-primary home-btn-compact">Добавить</GuestButton>
+              <button type="submit" className="btn btn-primary home-btn-compact">Добавить</button>
             </div>
           </form>
         </div>
@@ -339,7 +327,6 @@ export class Home extends Component {
                     className="btn btn-outline-secondary btn-sm me-2"
                     title="Редактировать"
                     onClick={() => this.openEditModal('executor', executor)}
-                    disabled={window.__guestMode}
                   >
                     ✎
                   </button>
@@ -348,7 +335,6 @@ export class Home extends Component {
                     className="btn btn-outline-danger btn-sm"
                     onClick={() => this.handleDeleteExecutor(executor.id, executor.name)}
                     title="Удалить"
-                    disabled={window.__guestMode}
                   >
                     🗑
                   </button>
@@ -466,13 +452,13 @@ export class Home extends Component {
             />
           </div>
             <div className="col-md-2">
-              <GuestButton
+              <button
                 type="submit"
                 className="btn btn-primary home-btn-compact text-nowrap"
                 style={{ width: '150%' }}
               >
                 Добавить исполнителя
-              </GuestButton>
+              </button>
             </div>
           </form>
         </div>

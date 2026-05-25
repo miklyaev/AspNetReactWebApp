@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { Container } from 'reactstrap';
 import { NavMenu } from './NavMenu';
 import { ProfilePanel } from './ProfilePanel';
-import { GuestModeBlocker } from './GuestModeBlocker';
 
 export class Layout extends Component {
   static displayName = Layout.name;
@@ -29,7 +28,6 @@ export class Layout extends Component {
 
   render() {
     const sidebarWidth = this.state.isProfileOpen ? 240 : 0;
-    const isGuest = !this.state.me || !this.state.me.isAuthenticated;
 
     return (
       <div>
@@ -38,16 +36,7 @@ export class Layout extends Component {
           me={this.state.me}
           isProfileOpen={this.state.isProfileOpen}
         />
-
-        <GuestModeBlocker enabled={isGuest} />
         <Container tag="main">
-          {isGuest && (
-            <div className="d-flex justify-content-end">
-              <div className="text-danger fw-semibold" style={{ marginTop: '-8px' }}>
-                В гостевом профиле редактирование запрещено! Войдите в свой профиль.
-              </div>
-            </div>
-          )}
           <div className="d-flex gap-3">
             <div className="flex-grow-1">
               {this.props.children}
