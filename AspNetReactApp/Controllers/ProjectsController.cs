@@ -1,5 +1,6 @@
 using JiraClone.Data.Domain.Entities;
 using JiraClone.Data.Domain.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AspNetReactApp.Controllers;
@@ -32,6 +33,7 @@ public class ProjectsController : ControllerBase
         return project is null ? NotFound() : Ok(project);
     }
 
+    [Authorize(Roles = "Admin,Leader")]
     [HttpPost]
     public async Task<ActionResult<Project>> CreateProject([FromBody] ProjectRequest request)
     {
@@ -57,6 +59,7 @@ public class ProjectsController : ControllerBase
         return CreatedAtAction(nameof(GetProject), new { id = created.Id }, created);
     }
 
+    [Authorize(Roles = "Admin,Leader")]
     [HttpPut("{id:int}")]
     public async Task<IActionResult> UpdateProject(int id, [FromBody] ProjectRequest request)
     {
@@ -85,6 +88,7 @@ public class ProjectsController : ControllerBase
         return NoContent();
     }
 
+    [Authorize(Roles = "Admin,Leader")]
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteProject(int id)
     {

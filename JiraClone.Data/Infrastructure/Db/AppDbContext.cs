@@ -13,6 +13,7 @@ public class AppDbContext : DbContext
     public DbSet<Employee> Employees => Set<Employee>();
     public DbSet<Executor> Executors => Set<Executor>();
     public DbSet<Leader> Leaders => Set<Leader>();
+    public DbSet<Profile> Profiles => Set<Profile>();
     public DbSet<Comment> Comments => Set<Comment>();
     public DbSet<TimeEntry> TimeEntries => Set<TimeEntry>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -67,6 +68,22 @@ public class AppDbContext : DbContext
             .Property(e => e.Position)
             .HasMaxLength(128)
             .IsRequired(false);
+
+        modelBuilder.Entity<Profile>()
+            .HasOne(p => p.Employee)
+            .WithOne()
+            .HasForeignKey<Profile>(p => p.EmployeeId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Profile>()
+            .HasIndex(p => p.EmployeeId)
+            .IsUnique()
+            .HasFilter("\"EmployeeId\" IS NOT NULL");
+
+        modelBuilder.Entity<Profile>()
+            .HasIndex(p => p.ExternalKey)
+            .IsUnique()
+            .HasFilter("\"ExternalKey\" IS NOT NULL");
 
         // Executor -> Tasks (1:M)
         modelBuilder.Entity<Executor>()

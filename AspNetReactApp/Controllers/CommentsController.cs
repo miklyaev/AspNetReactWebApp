@@ -1,5 +1,7 @@
 using JiraClone.Data.Domain.Entities;
 using JiraClone.Data.Domain.Interfaces;
+using AspNetReactApp.Auth;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AspNetReactApp.Controllers;
@@ -22,9 +24,21 @@ public class CommentsController : ControllerBase
         return Ok(comments);
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<ActionResult<Comment>> CreateComment([FromBody] CommentRequest request)
     {
+        if (AuthConstants.IsAdmin(User) || User.IsInRole(AuthConstants.Roles.Leader))
+        {
+            return Forbid();
+        }
+
+        var currentExecutorId = AuthConstants.GetEmployeeId(User);
+        if (currentExecutorId is null || request.AuthorId != currentExecutorId.Value)
+        {
+            return Forbid();
+        }
+
         if (string.IsNullOrWhiteSpace(request.Text))
         {
             return BadRequest("Text is required.");
@@ -53,6 +67,7 @@ public class CommentsController : ControllerBase
         return Ok(created);
     }
 
+    [Authorize(Roles = "Admin,Leader")]
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteComment(int id)
     {

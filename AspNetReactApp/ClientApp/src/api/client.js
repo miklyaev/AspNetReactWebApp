@@ -5,6 +5,7 @@ const defaultHeaders = {
 async function request(path, options = {}) {
   const response = await fetch(path, {
     ...options,
+    credentials: 'include',
     headers: {
       ...defaultHeaders,
       ...(options.headers || {})
@@ -32,6 +33,13 @@ function withQuery(basePath, key, value) {
 }
 
 export const apiClient = {
+  login: (payload) => request('/api/auth/login', { method: 'POST', body: JSON.stringify(payload) }),
+  logout: () => request('/api/auth/logout', { method: 'POST' }),
+  me: () => request('/api/auth/me'),
+  getProfile: () => request('/api/profile'),
+  updateProfile: (payload) => request('/api/profile', { method: 'PUT', body: JSON.stringify(payload) }),
+  changeCredentials: (payload) => request('/api/account/change-credentials', { method: 'POST', body: JSON.stringify(payload) }),
+
   getGoals: () => request('/api/goals'),
   createGoal: (payload) => request('/api/goals', { method: 'POST', body: JSON.stringify(payload) }),
 

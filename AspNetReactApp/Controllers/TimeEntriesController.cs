@@ -1,5 +1,7 @@
 using JiraClone.Data.Domain.Entities;
 using JiraClone.Data.Domain.Interfaces;
+using AspNetReactApp.Auth;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AspNetReactApp.Controllers;
@@ -32,6 +34,7 @@ public class TimeEntriesController : ControllerBase
         return Ok(totalHours);
     }
 
+    [Authorize(Roles = "Admin,Leader")]
     [HttpPost]
     public async Task<ActionResult<TimeEntry>> CreateTimeEntry([FromBody] TimeEntryRequest request)
     {

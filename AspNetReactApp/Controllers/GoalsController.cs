@@ -1,5 +1,6 @@
 using JiraClone.Data.Domain.Entities;
 using JiraClone.Data.Domain.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AspNetReactApp.Controllers;
@@ -29,6 +30,7 @@ public class GoalsController : ControllerBase
         return goal is null ? NotFound() : Ok(goal);
     }
 
+    [Authorize(Roles = "Admin,Leader")]
     [HttpPost]
     public async Task<ActionResult<Goal>> CreateGoal([FromBody] GoalRequest request)
     {
@@ -47,6 +49,7 @@ public class GoalsController : ControllerBase
         return CreatedAtAction(nameof(GetGoal), new { id = created.Id }, created);
     }
 
+    [Authorize(Roles = "Admin,Leader")]
     [HttpPut("{id:int}")]
     public async Task<IActionResult> UpdateGoal(int id, [FromBody] GoalRequest request)
     {
@@ -68,6 +71,7 @@ public class GoalsController : ControllerBase
         return NoContent();
     }
 
+    [Authorize(Roles = "Admin,Leader")]
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteGoal(int id)
     {

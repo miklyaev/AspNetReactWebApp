@@ -14,14 +14,34 @@ export class Home extends Component {
       responsibleLogin: '',
       responsiblePassword: '',
         responsiblePosition: '',
+      leaderErrors: {},
       executorName: '',
       executorEmail: '',
       executorLogin: '',
       executorPassword: '',
         executorPosition: '',
+      executorErrors: {},
       loading: true,
       error: ''
     };
+  }
+
+  validateLeaderForm() {
+    const errors = {};
+    if (!this.state.responsibleName.trim()) errors.name = 'Имя обязательно';
+    if (!this.state.responsibleEmail.trim()) errors.email = 'Email обязателен';
+    if (!this.state.responsibleLogin.trim()) errors.login = 'Логин обязателен';
+    if (!this.state.responsiblePassword.trim()) errors.password = 'Пароль обязателен';
+    return errors;
+  }
+
+  validateExecutorForm() {
+    const errors = {};
+    if (!this.state.executorName.trim()) errors.name = 'Имя обязательно';
+    if (!this.state.executorEmail.trim()) errors.email = 'Email обязателен';
+    if (!this.state.executorLogin.trim()) errors.login = 'Логин обязателен';
+    if (!this.state.executorPassword.trim()) errors.password = 'Пароль обязателен';
+    return errors;
   }
 
   openEditModal(kind, employee) {
@@ -109,9 +129,9 @@ export class Home extends Component {
 
     const { responsibleName, responsibleEmail, responsibleLogin, responsiblePassword } = this.state;
     const { responsiblePosition } = this.state;
-    if (!responsibleName.trim() || !responsibleEmail.trim() || !responsibleLogin.trim() || !responsiblePassword.trim()) {
-      return;
-    }
+    const leaderErrors = this.validateLeaderForm();
+    this.setState({ leaderErrors });
+    if (Object.keys(leaderErrors).length > 0) return;
 
     await apiClient.createLeader({
       name: responsibleName.trim(),
@@ -121,7 +141,7 @@ export class Home extends Component {
       position: responsiblePosition.trim()
     });
 
-    this.setState({ responsibleName: '', responsibleEmail: '', responsibleLogin: '', responsiblePassword: '', responsiblePosition: '' });
+    this.setState({ responsibleName: '', responsibleEmail: '', responsibleLogin: '', responsiblePassword: '', responsiblePosition: '', leaderErrors: {} });
     await this.loadData();
   }
 
@@ -135,9 +155,9 @@ export class Home extends Component {
 
     const { executorName, executorEmail, executorLogin, executorPassword } = this.state;
     const { executorPosition } = this.state;
-    if (!executorName.trim() || !executorEmail.trim() || !executorLogin.trim() || !executorPassword.trim()) {
-      return;
-    }
+    const executorErrors = this.validateExecutorForm();
+    this.setState({ executorErrors });
+    if (Object.keys(executorErrors).length > 0) return;
 
     await apiClient.createExecutor({
       name: executorName.trim(),
@@ -147,7 +167,7 @@ export class Home extends Component {
       position: executorPosition.trim()
     });
 
-    this.setState({ executorName: '', executorEmail: '', executorLogin: '', executorPassword: '', executorPosition: '' });
+    this.setState({ executorName: '', executorEmail: '', executorLogin: '', executorPassword: '', executorPosition: '', executorErrors: {} });
     await this.loadData();
   }
 
@@ -168,6 +188,9 @@ export class Home extends Component {
       loading,
       error
     } = this.state;
+
+    const leaderErrors = this.state.leaderErrors || {};
+    const executorErrors = this.state.executorErrors || {};
     return (
       <div className="home-container">
         <h1 className="mb-3 main-title">Simple Jira</h1>
@@ -219,40 +242,44 @@ export class Home extends Component {
           </table>
 
           <form className="row g-2" onSubmit={(event) => this.handleAddLeader(event)}>
+           <div className="col-md-2">
+             <input
+               className={`form-control ${leaderErrors.name ? 'is-invalid' : ''}`}
+               placeholder="Имя ответственного"
+               value={responsibleName}
+               onChange={(event) => this.setState({ responsibleName: event.target.value })}
+             />
+             {leaderErrors.name && <div className="invalid-feedback">{leaderErrors.name}</div>}
+           </div>
           <div className="col-md-2">
             <input
-              className="form-control"
-              placeholder="Имя ответственного"
-              value={responsibleName}
-              onChange={(event) => this.setState({ responsibleName: event.target.value })}
-            />
-          </div>
-          <div className="col-md-2">
-            <input
-              className="form-control"
+               className={`form-control ${leaderErrors.email ? 'is-invalid' : ''}`}
               placeholder="Email ответственного"
               value={responsibleEmail}
               onChange={(event) => this.setState({ responsibleEmail: event.target.value })}
             />
+             {leaderErrors.email && <div className="invalid-feedback">{leaderErrors.email}</div>}
           </div>
           <div className="col-md-2">
             <input
-              className="form-control"
+               className={`form-control ${leaderErrors.login ? 'is-invalid' : ''}`}
               placeholder="Логин"
               maxLength={12}
               value={responsibleLogin}
               onChange={(event) => this.setState({ responsibleLogin: event.target.value })}
             />
+             {leaderErrors.login && <div className="invalid-feedback">{leaderErrors.login}</div>}
           </div>
           <div className="col-md-2">
             <input
-              className="form-control"
+               className={`form-control ${leaderErrors.password ? 'is-invalid' : ''}`}
               type="password"
               placeholder="Пароль"
               maxLength={12}
               value={responsiblePassword}
               onChange={(event) => this.setState({ responsiblePassword: event.target.value })}
             />
+             {leaderErrors.password && <div className="invalid-feedback">{leaderErrors.password}</div>}
           </div>
           <div className="col-md-2">
             <input
@@ -370,19 +397,42 @@ export class Home extends Component {
           <form className="row g-2" onSubmit={(event) => this.handleAddExecutor(event)}>
           <div className="col-md-3">
             <input
-              className="form-control"
+              className={`form-control ${executorErrors.name ? 'is-invalid' : ''}`}
               placeholder="Имя исполнителя"
               value={executorName}
               onChange={(event) => this.setState({ executorName: event.target.value })}
             />
+            {executorErrors.name && <div className="invalid-feedback">{executorErrors.name}</div>}
           </div>
           <div className="col-md-3">
             <input
-              className="form-control"
+              className={`form-control ${executorErrors.email ? 'is-invalid' : ''}`}
               placeholder="Email исполнителя"
               value={executorEmail}
               onChange={(event) => this.setState({ executorEmail: event.target.value })}
             />
+            {executorErrors.email && <div className="invalid-feedback">{executorErrors.email}</div>}
+          </div>
+          <div className="col-md-2">
+            <input
+              className={`form-control ${executorErrors.login ? 'is-invalid' : ''}`}
+              placeholder="Логин"
+              maxLength={12}
+              value={executorLogin}
+              onChange={(event) => this.setState({ executorLogin: event.target.value })}
+            />
+            {executorErrors.login && <div className="invalid-feedback">{executorErrors.login}</div>}
+          </div>
+          <div className="col-md-2">
+            <input
+              className={`form-control ${executorErrors.password ? 'is-invalid' : ''}`}
+              type="password"
+              placeholder="Пароль"
+              maxLength={12}
+              value={executorPassword}
+              onChange={(event) => this.setState({ executorPassword: event.target.value })}
+            />
+            {executorErrors.password && <div className="invalid-feedback">{executorErrors.password}</div>}
           </div>
           <div className="col-md-3">
             <input
@@ -393,7 +443,7 @@ export class Home extends Component {
               onChange={(event) => this.setState({ executorPosition: event.target.value })}
             />
           </div>
-            <div className="col-md-3">
+            <div className="col-md-2">
               <button type="submit" className="btn btn-primary home-btn-compact">Добавить исполнителя</button>
             </div>
           </form>

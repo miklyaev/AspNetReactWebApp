@@ -1,5 +1,6 @@
 using JiraClone.Data.Domain.Entities;
 using JiraClone.Data.Domain.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AspNetReactApp.Controllers;
@@ -22,6 +23,7 @@ public class ExecutorsController : ControllerBase
         return Ok(executors);
     }
 
+    [Authorize(Roles = "Admin,Leader")]
     [HttpPost]
     public async Task<ActionResult<Executor>> CreateExecutor([FromBody] ExecutorRequest request)
     {
@@ -38,6 +40,11 @@ public class ExecutorsController : ControllerBase
             Position = request.Position.Trim()
         };
 
+        if (string.IsNullOrWhiteSpace(executor.Login))
+        {
+            return BadRequest("Login is required.");
+        }
+
         if (!string.IsNullOrWhiteSpace(request.Password))
         {
             executor.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password.Trim());
@@ -51,6 +58,7 @@ public class ExecutorsController : ControllerBase
         return CreatedAtAction(nameof(GetExecutors), new { id = created.Id }, created);
     }
 
+    [Authorize(Roles = "Admin,Leader")]
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteExecutor(int id)
     {
@@ -58,6 +66,7 @@ public class ExecutorsController : ControllerBase
         return NoContent();
     }
 
+    [Authorize(Roles = "Admin,Leader")]
     [HttpPut("{id:int}")]
     public async Task<ActionResult<Executor>> UpdateExecutor(int id, [FromBody] ExecutorRequest request)
     {
@@ -78,6 +87,7 @@ public class ExecutorsController : ControllerBase
         {
             executor.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password.Trim());
         }
+
         executor.Position = string.IsNullOrWhiteSpace(request.Position) ? null : request.Position.Trim();
 
         await _dbService.UpdateEmployeeAsync(executor);
@@ -91,5 +101,6 @@ public class ExecutorsController : ControllerBase
         public string Login { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
         public string Position { get; set; } = string.Empty;
+        // Placeholder to keep formatting consistent
     }
 }

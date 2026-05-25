@@ -1,5 +1,6 @@
 using JiraClone.Data.Domain.Entities;
 using JiraClone.Data.Domain.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AspNetReactApp.Controllers;
@@ -22,6 +23,7 @@ public class LeadersController : ControllerBase
         return Ok(Leaders);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<ActionResult<Leader>> CreateLeader([FromBody] LeaderRequest request)
     {
@@ -38,6 +40,11 @@ public class LeadersController : ControllerBase
             Position = request.Position.Trim()
         };
 
+        if (string.IsNullOrWhiteSpace(Leader.Login))
+        {
+            return BadRequest("Login is required.");
+        }
+
         if (!string.IsNullOrWhiteSpace(request.Password))
         {
             Leader.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password.Trim());
@@ -51,6 +58,7 @@ public class LeadersController : ControllerBase
         return CreatedAtAction(nameof(GetLeaders), new { id = created.Id }, created);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteLeader(int id)
     {
@@ -58,6 +66,7 @@ public class LeadersController : ControllerBase
         return NoContent();
     }
 
+    [Authorize(Roles = "Admin,Leader")]
     [HttpPut("{id:int}")]
     public async Task<ActionResult<Leader>> UpdateLeader(int id, [FromBody] LeaderRequest request)
     {

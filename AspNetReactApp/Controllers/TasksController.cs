@@ -1,6 +1,8 @@
 using JiraClone.Data.Domain.Entities;
 using JiraClone.Data.Domain.Enums;
 using JiraClone.Data.Domain.Interfaces;
+using AspNetReactApp.Auth;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AspNetReactApp.Controllers;
@@ -33,6 +35,7 @@ public class TasksController : ControllerBase
         return task is null ? NotFound() : Ok(task);
     }
 
+    [Authorize(Roles = "Admin,Leader")]
     [HttpPost]
     public async Task<ActionResult<TaskItem>> CreateTask([FromBody] TaskRequest request)
     {
@@ -79,6 +82,31 @@ public class TasksController : ControllerBase
             return NotFound();
         }
 
+        if (User.IsInRole(AuthConstants.Roles.Executor))
+        {
+            var currentExecutorId = AuthConstants.GetEmployeeId(User);
+            if (currentExecutorId is null || existing.ExecutorId != currentExecutorId.Value)
+            {
+                return Forbid();
+            }
+
+            var onlyStatusChange =
+                request.ProjectId == existing.ProjectId &&
+                request.ExecutorId == existing.ExecutorId &&
+                request.Priority == existing.Priority &&
+                string.Equals(request.Title?.Trim(), existing.Title, StringComparison.Ordinal) &&
+                string.Equals(request.Description?.Trim(), existing.Description, StringComparison.Ordinal);
+
+            if (!onlyStatusChange)
+            {
+                return Forbid();
+            }
+        }
+        else if (!User.IsInRole(AuthConstants.Roles.Admin) && !User.IsInRole(AuthConstants.Roles.Leader))
+        {
+            return Forbid();
+        }
+
         if (string.IsNullOrWhiteSpace(request.Title))
         {
             return BadRequest("Title is required.");
@@ -111,6 +139,7 @@ public class TasksController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
+    [Authorize(Roles = "Admin,Leader")]
     public async Task<IActionResult> DeleteTask(int id)
     {
         await _dbService.DeleteTaskAsync(id);
