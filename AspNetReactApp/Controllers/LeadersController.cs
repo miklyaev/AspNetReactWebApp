@@ -1,7 +1,6 @@
 using JiraClone.Data.Domain.Entities;
 using JiraClone.Data.Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Identity;
 
 namespace AspNetReactApp.Controllers;
 
@@ -10,7 +9,6 @@ namespace AspNetReactApp.Controllers;
 public class LeadersController : ControllerBase
 {
     private readonly IDbService _dbService;
-    private readonly PasswordHasher<Employee> _passwordHasher = new();
 
     public LeadersController(IDbService dbService)
     {
@@ -42,7 +40,7 @@ public class LeadersController : ControllerBase
 
         if (!string.IsNullOrWhiteSpace(request.Password))
         {
-            Leader.PasswordHash = _passwordHasher.HashPassword(Leader, request.Password.Trim());
+            Leader.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password.Trim());
         }
         else
         {
@@ -78,7 +76,7 @@ public class LeadersController : ControllerBase
 
         if (!string.IsNullOrWhiteSpace(request.Password))
         {
-            leader.PasswordHash = _passwordHasher.HashPassword(leader, request.Password.Trim());
+            leader.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password.Trim());
         }
         leader.Position = string.IsNullOrWhiteSpace(request.Position) ? null : request.Position.Trim();
 

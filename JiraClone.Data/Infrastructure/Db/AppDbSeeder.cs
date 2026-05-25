@@ -1,15 +1,21 @@
 using JiraClone.Data.Domain.Entities;
 using JiraClone.Data.Domain.Enums;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace JiraClone.Data.Infrastructure.Db;
+
+internal static class PasswordHashing
+{
+    internal static string Hash(string password)
+    {
+        return BCrypt.Net.BCrypt.HashPassword(password);
+    }
+}
 
 public static class AppDbSeeder
 {
     public static async Task SeedAsync(AppDbContext context)
     {
-        var passwordHasher = new PasswordHasher<Employee>();
         const string defaultPassword = "password1234";
 
         if (!await context.Leaders.AnyAsync())
@@ -22,7 +28,7 @@ public static class AppDbSeeder
 
             foreach (var leader in leaders)
             {
-                leader.PasswordHash = passwordHasher.HashPassword(leader, defaultPassword);
+                leader.PasswordHash = PasswordHashing.Hash(defaultPassword);
             }
 
             await context.Leaders.AddRangeAsync(leaders);
@@ -42,7 +48,7 @@ public static class AppDbSeeder
 
         foreach (var executor in executors)
         {
-            executor.PasswordHash = passwordHasher.HashPassword(executor, defaultPassword);
+            executor.PasswordHash = PasswordHashing.Hash(defaultPassword);
         }
 
         await context.Executors.AddRangeAsync(executors);

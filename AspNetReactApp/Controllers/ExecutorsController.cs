@@ -1,7 +1,6 @@
 using JiraClone.Data.Domain.Entities;
 using JiraClone.Data.Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Identity;
 
 namespace AspNetReactApp.Controllers;
 
@@ -10,7 +9,6 @@ namespace AspNetReactApp.Controllers;
 public class ExecutorsController : ControllerBase
 {
     private readonly IDbService _dbService;
-    private readonly PasswordHasher<Employee> _passwordHasher = new();
 
     public ExecutorsController(IDbService dbService)
     {
@@ -42,7 +40,7 @@ public class ExecutorsController : ControllerBase
 
         if (!string.IsNullOrWhiteSpace(request.Password))
         {
-            executor.PasswordHash = _passwordHasher.HashPassword(executor, request.Password.Trim());
+            executor.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password.Trim());
         }
         else
         {
@@ -78,7 +76,7 @@ public class ExecutorsController : ControllerBase
 
         if (!string.IsNullOrWhiteSpace(request.Password))
         {
-            executor.PasswordHash = _passwordHasher.HashPassword(executor, request.Password.Trim());
+            executor.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password.Trim());
         }
         executor.Position = string.IsNullOrWhiteSpace(request.Position) ? null : request.Position.Trim();
 
