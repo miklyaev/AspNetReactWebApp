@@ -171,15 +171,16 @@ export class Home extends Component {
     return (
       <div className="home-container">
         <h1 className="mb-3 main-title">Simple Jira</h1>
-        <p className="mb-4">
+        <p className="mb-4 lead-text">
           Система управления задачами и временем. Минималистична. Связывает задачи с целями. Учитывает время без friction
         </p>
 
         {loading && <p>Загрузка...</p>}
         {error && <div className="alert alert-danger">{error}</div>}
 
-        <h3 className="mt-4 section-title">Ответственные лица</h3>
-        <table className="table table-striped">
+        <div className="section-block mt-4 leaders-block">
+          <h3 className="section-title">Ответственные лица</h3>
+          <table className="table table-striped">
           <thead>
             <tr>
               <th>Имя</th>
@@ -215,9 +216,9 @@ export class Home extends Component {
               </tr>
             ))}
           </tbody>
-        </table>
+          </table>
 
-        <form className="row g-2" onSubmit={(event) => this.handleAddLeader(event)}>
+          <form className="row g-2" onSubmit={(event) => this.handleAddLeader(event)}>
           <div className="col-md-2">
             <input
               className="form-control"
@@ -262,14 +263,15 @@ export class Home extends Component {
               onChange={(event) => this.setState({ responsiblePosition: event.target.value })}
             />
           </div>
-          <div className="col-md-2">
-            <button type="submit" className="btn btn-primary home-btn-compact">Добавить</button>
-          </div>
-        </form>
+            <div className="col-md-2">
+              <button type="submit" className="btn btn-primary home-btn-compact">Добавить</button>
+            </div>
+          </form>
+        </div>
 
-
-        <h3 className="mt-4 section-title">Исполнители</h3>
-        <table className="table table-striped">
+        <div className="section-block mt-4">
+          <h3 className="section-title">Исполнители</h3>
+          <table className="table table-striped">
           <thead>
             <tr>
               <th>Имя</th>
@@ -305,9 +307,9 @@ export class Home extends Component {
               </tr>
             ))}
           </tbody>
-        </table>
+          </table>
 
-        {this.state.editModalOpen && (
+          {this.state.editModalOpen && (
           <div className="modal fade show" style={{ display: 'block' }} tabIndex="-1" role="dialog">
             <div className="modal-dialog" role="document">
               <div className="modal-content">
@@ -361,11 +363,11 @@ export class Home extends Component {
               </div>
             </div>
           </div>
-        )}
+          )}
 
-        {this.state.editModalOpen && <div className="modal-backdrop fade show" />}
+          {this.state.editModalOpen && <div className="modal-backdrop fade show" />}
 
-        <form className="row g-2" onSubmit={(event) => this.handleAddExecutor(event)}>
+          <form className="row g-2" onSubmit={(event) => this.handleAddExecutor(event)}>
           <div className="col-md-3">
             <input
               className="form-control"
@@ -391,10 +393,11 @@ export class Home extends Component {
               onChange={(event) => this.setState({ executorPosition: event.target.value })}
             />
           </div>
-          <div className="col-md-2">
-            <button type="submit" className="btn btn-primary home-btn-compact">Добавить исполнителя</button>
-          </div>
-        </form>
+            <div className="col-md-3">
+              <button type="submit" className="btn btn-primary home-btn-compact">Добавить исполнителя</button>
+            </div>
+          </form>
+        </div>
       </div>
     );
   }

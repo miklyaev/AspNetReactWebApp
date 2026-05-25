@@ -1,11 +1,28 @@
 .main-title {
-  font-size: calc(2.5rem - 1px);
+  font-size: calc(2.5rem + 1px);
 }
 
 .section-title {
-  font-size: calc(1.75rem - 1px);
+  font-size: calc(1.75rem - 5px);
 }
 
 .home-btn-compact {
-  width: 66.6667%;
+  width: 100%;
+}
+
+.lead-text {
+  font-size: 1.125rem; /* slightly larger than default */
+}
+
+.section-block {
+  border: 1px solid rgba(0,0,0,0.16);
+  background: rgba(0,0,0,0.02);
+  padding: 12px;
+  border-radius: 6px;
+}
+
+.leaders-block {
+  border-left: 1px solid rgba(0,0,0,0.16);
+  background: rgba(0,0,0,0.02);
+  box-shadow: none;
 }
