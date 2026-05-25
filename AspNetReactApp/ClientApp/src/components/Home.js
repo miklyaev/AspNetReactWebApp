@@ -102,7 +102,11 @@ export class Home extends Component {
     await this.loadData();
   }
 
-  async handleDeleteLeader(id) {
+  async handleDeleteLeader(id, name) {
+    const safeName = (name ?? '').toString();
+    if (!window.confirm(`Вы уверены что хотите удалить сотрудника ${safeName}?`)) {
+      return;
+    }
     await apiClient.deleteLeader(id);
     await this.loadData();
   }
@@ -145,7 +149,11 @@ export class Home extends Component {
     await this.loadData();
   }
 
-  async handleDeleteExecutor(id) {
+  async handleDeleteExecutor(id, name) {
+    const safeName = (name ?? '').toString();
+    if (!window.confirm(`Вы уверены что хотите удалить сотрудника ${safeName}?`)) {
+      return;
+    }
     await apiClient.deleteExecutor(id);
     await this.loadData();
   }
@@ -230,7 +238,7 @@ export class Home extends Component {
                   <button
                     type="button"
                     className="btn btn-outline-danger btn-sm"
-                    onClick={() => this.handleDeleteLeader(leader.id)}
+                    onClick={() => this.handleDeleteLeader(leader.id, leader.name)}
                     title="Удалить"
                   >
                     🗑
@@ -325,7 +333,7 @@ export class Home extends Component {
                   <button
                     type="button"
                     className="btn btn-outline-danger btn-sm"
-                    onClick={() => this.handleDeleteExecutor(executor.id)}
+                    onClick={() => this.handleDeleteExecutor(executor.id, executor.name)}
                     title="Удалить"
                   >
                     🗑
@@ -444,7 +452,13 @@ export class Home extends Component {
             />
           </div>
             <div className="col-md-2">
-              <button type="submit" className="btn btn-primary home-btn-compact">Добавить исполнителя</button>
+              <button
+                type="submit"
+                className="btn btn-primary home-btn-compact text-nowrap"
+                style={{ width: '150%' }}
+              >
+                Добавить исполнителя
+              </button>
             </div>
           </form>
         </div>
