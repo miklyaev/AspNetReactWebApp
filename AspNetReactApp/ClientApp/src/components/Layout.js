@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Container } from 'reactstrap';
 import { NavMenu } from './NavMenu';
 import { ProfilePanel } from './ProfilePanel';
-
+import { apiClient } from '../api/client';
 export class Layout extends Component {
   static displayName = Layout.name;
 
@@ -16,6 +16,16 @@ export class Layout extends Component {
 
     this.toggleProfile = this.toggleProfile.bind(this);
     this.handleMeChanged = this.handleMeChanged.bind(this);
+    this.refreshMe = this.refreshMe.bind(this);
+  }
+
+  async refreshMe() {
+    try {
+      const me = await apiClient.me();
+      this.setState({ me });
+    } catch (e) {
+      this.setState({ me: null });
+    }
   }
 
   toggleProfile() {
@@ -39,9 +49,13 @@ export class Layout extends Component {
         <Container tag="main">
           <div className="d-flex gap-3">
             <div className="flex-grow-1">
-              {this.props.children}
+              {React.Children.map(this.props.children, child => {
+                if (React.isValidElement(child)) {
+                  return React.cloneElement(child, { me: this.state.me });
+                }
+                return child;
+              })}
             </div>
-
             <div
               style={{
                 width: `${sidebarWidth}px`,
@@ -56,7 +70,7 @@ export class Layout extends Component {
                   paddingLeft: '12px'
                 }}
               >
-                <ProfilePanel onMeChanged={this.handleMeChanged} />
+                <ProfilePanel onMeChanged={this.handleMeChanged} onAuthChanged={this.refreshMe} />
               </div>
             </div>
           </div>

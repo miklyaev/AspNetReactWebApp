@@ -99,6 +99,9 @@ export class TasksPage extends Component {
       error
     } = this.state;
 
+    const me = this.props.me;
+    const isLeader = me && me.isAuthenticated && me.role === 'Leader';
+
     return (
       <div>
         <h1 className="mb-3">Задачи</h1>
@@ -110,18 +113,21 @@ export class TasksPage extends Component {
             placeholder="Название задачи"
             value={title}
             onChange={(event) => this.setState({ title: event.target.value })}
+            disabled={!isLeader}
           />
           <textarea
             className="form-control mb-2"
             placeholder="Описание"
             value={description}
             onChange={(event) => this.setState({ description: event.target.value })}
+            disabled={!isLeader}
           />
 
           <select
             className="form-select mb-2"
             value={projectId}
             onChange={(event) => this.setState({ projectId: event.target.value })}
+            disabled={!isLeader}
           >
             <option value="">Выберите проект</option>
             {projects.map((project) => (
@@ -133,6 +139,7 @@ export class TasksPage extends Component {
             className="form-select mb-2"
             value={executorId}
             onChange={(event) => this.setState({ executorId: event.target.value })}
+            disabled={!isLeader}
           >
             <option value="">Без исполнителя</option>
             {executors.map((executor) => (
@@ -142,14 +149,14 @@ export class TasksPage extends Component {
 
           <div className="row g-2 mb-3">
             <div className="col-md-6">
-              <select className="form-select" value={status} onChange={(event) => this.setState({ status: event.target.value })}>
+              <select className="form-select" value={status} onChange={(event) => this.setState({ status: event.target.value })} disabled={!isLeader}>
                 {statusOptions.map((option) => (
                   <option key={option} value={option}>{option}</option>
                 ))}
               </select>
             </div>
             <div className="col-md-6">
-              <select className="form-select" value={priority} onChange={(event) => this.setState({ priority: event.target.value })}>
+              <select className="form-select" value={priority} onChange={(event) => this.setState({ priority: event.target.value })} disabled={!isLeader}>
                 {priorityOptions.map((option) => (
                   <option key={option} value={option}>{option}</option>
                 ))}
@@ -157,10 +164,8 @@ export class TasksPage extends Component {
             </div>
           </div>
 
-          <button className="btn btn-primary" type="submit">Добавить задачу</button>
-        </form>
-
-        {loading && <p>Загрузка...</p>}
+          <button className="btn btn-primary" type="submit" disabled={!isLeader}>Добавить задачу</button>
+        </form>        {loading && <p>Загрузка...</p>}
         {error && <div className="alert alert-danger">{error}</div>}
 
         <div className="list-group">

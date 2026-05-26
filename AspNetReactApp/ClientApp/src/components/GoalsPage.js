@@ -47,6 +47,8 @@ export class GoalsPage extends Component {
 
   render() {
     const { goals, loading, error, title, description } = this.state;
+    const me = this.props.me;
+    const isLeader = me && me.isAuthenticated && me.role === 'Leader';
 
     return (
       <div>
@@ -59,17 +61,17 @@ export class GoalsPage extends Component {
             placeholder="Название цели"
             value={title}
             onChange={(event) => this.setState({ title: event.target.value })}
+            disabled={!isLeader}
           />
           <textarea
             className="form-control mb-3"
             placeholder="Описание"
             value={description}
             onChange={(event) => this.setState({ description: event.target.value })}
+            disabled={!isLeader}
           />
-          <button className="btn btn-primary" type="submit">Добавить цель</button>
-        </form>
-
-        {loading && <p>Загрузка...</p>}
+          <button className="btn btn-primary" type="submit" disabled={!isLeader}>Добавить цель</button>
+        </form>        {loading && <p>Загрузка...</p>}
         {error && <div className="alert alert-danger">{error}</div>}
 
         {goals.map((goal) => (

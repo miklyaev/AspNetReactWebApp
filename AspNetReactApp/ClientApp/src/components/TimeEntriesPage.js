@@ -66,6 +66,8 @@ export class TimeEntriesPage extends Component {
 
   render() {
     const { timeEntries, tasks, executors, taskItemId, executorId, hours, date, loading, error } = this.state;
+    const me = this.props.me;
+    const isAuthenticated = me && me.isAuthenticated;
 
     return (
       <div>
@@ -77,6 +79,7 @@ export class TimeEntriesPage extends Component {
             className="form-select mb-2"
             value={taskItemId}
             onChange={(event) => this.setState({ taskItemId: event.target.value })}
+            disabled={!isAuthenticated}
           >
             <option value="">Выберите задачу</option>
             {tasks.map((task) => (
@@ -88,6 +91,7 @@ export class TimeEntriesPage extends Component {
             className="form-select mb-2"
             value={executorId}
             onChange={(event) => this.setState({ executorId: event.target.value })}
+            disabled={!isAuthenticated}
           >
             <option value="">Выберите исполнителя</option>
             {executors.map((executor) => (
@@ -103,6 +107,7 @@ export class TimeEntriesPage extends Component {
             placeholder="Часы"
             value={hours}
             onChange={(event) => this.setState({ hours: event.target.value })}
+            disabled={!isAuthenticated}
           />
 
           <input
@@ -110,12 +115,11 @@ export class TimeEntriesPage extends Component {
             type="datetime-local"
             value={date}
             onChange={(event) => this.setState({ date: event.target.value })}
+            disabled={!isAuthenticated}
           />
 
-          <button className="btn btn-primary" type="submit">Сохранить</button>
-        </form>
-
-        {loading && <p>Загрузка...</p>}
+          <button className="btn btn-primary" type="submit" disabled={!isAuthenticated}>Сохранить</button>
+        </form>        {loading && <p>Загрузка...</p>}
         {error && <div className="alert alert-danger">{error}</div>}
 
         <div className="list-group">

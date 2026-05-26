@@ -92,11 +92,13 @@ export class ProfilePanel extends Component {
     return (
       <div>
         <div className="fw-semibold mb-2">Профиль</div>
-        <Form onSubmit={this.onSubmit}>
-          <FormGroup className="mb-2">
-            <Label className="small" for="profile_login">Логин</Label>
-            <Input id="profile_login" value={this.state.login} onChange={this.onLoginChange} />
-          </FormGroup>
+        <div className="text-warning small mb-3">
+          Редактирование в гостевом профиле запрещено! Войдите в свой профиль.
+        </div>
+        <Form onSubmit={this.onSubmit}>          <FormGroup className="mb-2">
+          <Label className="small" for="profile_login">Логин</Label>
+          <Input id="profile_login" value={this.state.login} onChange={this.onLoginChange} />
+        </FormGroup>
           <FormGroup className="mb-2">
             <Label className="small" for="profile_password">Пароль</Label>
             <Input id="profile_password" type="password" value={this.state.password} onChange={this.onPasswordChange} />
