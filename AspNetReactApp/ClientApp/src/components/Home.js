@@ -234,7 +234,7 @@ export class Home extends Component {
                       className="btn btn-outline-secondary btn-sm me-2"
                       title="Редактировать"
                       onClick={() => this.openEditModal('leader', leader)}
-                      disabled={!canEdit}
+                      disabled={!isLeader}
                     >
                       ✎
                     </button>
@@ -243,7 +243,7 @@ export class Home extends Component {
                       className="btn btn-outline-danger btn-sm"
                       onClick={() => this.handleDeleteLeader(leader.id, leader.name)}
                       title="Удалить"
-                      disabled={!canEdit}
+                      disabled={!isLeader}
                     >
                       🗑
                     </button>
@@ -303,7 +303,7 @@ export class Home extends Component {
               />
             </div>
             <div className="col-md-2">
-              <button type="submit" className="btn btn-primary home-btn-compact" disabled={!canEdit}>Добавить</button>
+              <button type="submit" className="btn btn-primary home-btn-compact" disabled={!isLeader}>Добавить</button>
             </div>
           </form>
         </div>
@@ -331,7 +331,7 @@ export class Home extends Component {
                       className="btn btn-outline-secondary btn-sm me-2"
                       title="Редактировать"
                       onClick={() => this.openEditModal('executor', executor)}
-                      disabled={!canEdit}
+                      disabled={!isLeader}
                     >
                       ✎
                     </button>
@@ -340,7 +340,7 @@ export class Home extends Component {
                       className="btn btn-outline-danger btn-sm"
                       onClick={() => this.handleDeleteExecutor(executor.id, executor.name)}
                       title="Удалить"
-                      disabled={!canEdit}
+                      disabled={!isLeader}
                     >
                       🗑
                     </button>
@@ -462,7 +462,7 @@ export class Home extends Component {
                 type="submit"
                 className="btn btn-primary home-btn-compact text-nowrap"
                 style={{ width: '150%' }}
-                disabled={!canEdit}
+                disabled={!isLeader}
               >
                 Добавить исполнителя
               </button>

@@ -11,12 +11,16 @@ export class Layout extends Component {
 
     this.state = {
       isProfileOpen: false,
-      me: null
+      me: null,
+      renderTick: 0
     };
 
     this.toggleProfile = this.toggleProfile.bind(this);
     this.handleMeChanged = this.handleMeChanged.bind(this);
-    this.refreshMe = this.refreshMe.bind(this);
+  }
+
+  componentDidMount() {
+    this.refreshMe();
   }
 
   async refreshMe() {
@@ -33,7 +37,15 @@ export class Layout extends Component {
   }
 
   handleMeChanged(me) {
-    this.setState({ me });
+    console.log('Layout.handleMeChanged - me:', me);
+    this.setState((prev) => ({ me, renderTick: (prev.renderTick || 0) + 1 }), () => {
+      console.log('Layout after setState - me:', this.state.me, 'renderTick:', this.state.renderTick);
+      try {
+        this.forceUpdate();
+      } catch (e) {
+        console.error('forceUpdate error', e);
+      }
+    });
   }
 
   render() {
@@ -49,11 +61,29 @@ export class Layout extends Component {
         <Container tag="main">
           <div className="d-flex gap-3">
             <div className="flex-grow-1">
-              {React.Children.map(this.props.children, child => {
-                if (React.isValidElement(child)) {
-                  return React.cloneElement(child, { me: this.state.me });
+              {React.Children.map(this.props.children, (child, idx) => {
+                if (!React.isValidElement(child)) return child;
+
+                // If child has route children (Routes), clone each Route and inject `me` into its `element` prop.
+                if (child.props && child.props.children) {
+                  const newChildren = React.Children.map(child.props.children, (routeChild) => {
+                    if (!React.isValidElement(routeChild)) return routeChild;
+                    // For <Route ... element={...} /> inject me into element
+                    if (routeChild.props && routeChild.props.element) {
+                      const element = routeChild.props.element;
+                      const newElement = React.isValidElement(element)
+                        ? React.cloneElement(element, { me: this.state.me })
+                        : element;
+                      return React.cloneElement(routeChild, { element: newElement });
+                    }
+                    return routeChild;
+                  });
+
+                  return React.cloneElement(child, { children: newChildren, key: `child-${idx}-tick-${this.state.renderTick}` });
                 }
-                return child;
+
+                // Fallback: clone element and attach me directly
+                return React.cloneElement(child, { me: this.state.me, key: `child-${idx}-tick-${this.state.renderTick}` });
               })}
             </div>
             <div
@@ -70,7 +100,7 @@ export class Layout extends Component {
                   paddingLeft: '12px'
                 }}
               >
-                <ProfilePanel onMeChanged={this.handleMeChanged} onAuthChanged={this.refreshMe} />
+                <ProfilePanel onMeChanged={this.handleMeChanged} />
               </div>
             </div>
           </div>

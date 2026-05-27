@@ -26,6 +26,9 @@ builder.Services
     .AddCookie(AuthConstants.CookieScheme, options =>
     {
         options.Cookie.Name = "AspNetReactApp.Auth";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.Always;
+        options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None;
         options.SlidingExpiration = true;
         options.ExpireTimeSpan = TimeSpan.FromDays(7);
         options.Events = new CookieAuthenticationEvents
@@ -49,9 +52,11 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
+        policy
+            .WithOrigins("https://localhost:44418") // replace with your client origin if different
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials();
     });
 });
 

@@ -35,6 +35,7 @@ export class ProfilePanel extends Component {
   async load() {
     try {
       const me = await apiClient.me();
+      console.log('ProfilePanel.load() - me:', me);
       let profile = null;
       if (me && me.isAuthenticated) {
         try {
@@ -44,9 +45,12 @@ export class ProfilePanel extends Component {
         }
       }
 
-      this.setState({ loading: false, me, profile, error: null });
-      this.notifyMeChanged(me);
+      this.setState({ loading: false, me, profile, error: null }, () => {
+        console.log('ProfilePanel after setState - me:', this.state.me);
+        this.notifyMeChanged(me);
+      });
     } catch (e) {
+      console.error('ProfilePanel.load() error:', e);
       this.setState({ loading: false, error: e.message });
     }
   }
@@ -67,9 +71,6 @@ export class ProfilePanel extends Component {
       await apiClient.login({ login: this.state.login, password: this.state.password });
       this.setState({ login: '', password: '' });
       await this.load();
-      if (this.props.onAuthChanged) {
-        this.props.onAuthChanged();
-      }
     } catch (err) {
       this.setState({ error: err.message || 'Login failed' });
     }
@@ -80,9 +81,6 @@ export class ProfilePanel extends Component {
     try {
       await apiClient.logout();
       await this.load();
-      if (this.props.onAuthChanged) {
-        this.props.onAuthChanged();
-      }
     } catch (err) {
       this.setState({ error: err.message || 'Logout failed' });
     }

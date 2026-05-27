@@ -47,7 +47,14 @@ export const apiClient = {
   createProject: (payload) => request('/api/projects', { method: 'POST', body: JSON.stringify(payload) }),
 
   getTasks: (projectId) => request(withQuery('/api/tasks', 'projectId', projectId)),
+  getTask: (id) => request(`/api/tasks/${id}`),
   createTask: (payload) => request('/api/tasks', { method: 'POST', body: JSON.stringify(payload) }),
+  updateTask: (id, payload) => request(`/api/tasks/${id}`, { method: 'PUT', body: JSON.stringify(payload) }),
+  updateTaskStatus: (id, payload) => request(`/api/tasks/${id}/status`, { method: 'PUT', body: JSON.stringify(payload) }),
+
+  getComments: (taskId) => request(`/api/comments?taskId=${taskId}`),
+  createComment: (payload) => request('/api/comments', { method: 'POST', body: JSON.stringify(payload) }),
+  deleteComment: (id) => request(`/api/comments/${id}`, { method: 'DELETE' }),
 
   getExecutors: () => request('/api/executors'),
   createExecutor: (payload) => request('/api/executors', { method: 'POST', body: JSON.stringify(payload) }),

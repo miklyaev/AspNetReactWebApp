@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { apiClient } from '../api/client';
+import { TaskDetailModal } from './TaskDetailModal';
 
 const statusOptions = ['К выполнению', 'В работе', 'Готово', 'Отменено'];
 const priorityOptions = ['Низкий', 'Средний', 'Высокий', 'Критический'];
@@ -34,8 +35,13 @@ export class TasksPage extends Component {
       status: 'ToDo',
       priority: 'Medium',
       loading: true,
-      error: ''
+      error: '',
+      selectedTaskId: null,
+      detailModalOpen: false
     };
+
+    this.toggleDetailModal = this.toggleDetailModal.bind(this);
+    this.openTaskDetail = this.openTaskDetail.bind(this);
   }
 
   async componentDidMount() {
@@ -84,6 +90,14 @@ export class TasksPage extends Component {
     await this.loadData();
   }
 
+  toggleDetailModal() {
+    this.setState({ detailModalOpen: !this.state.detailModalOpen });
+  }
+
+  openTaskDetail(taskId) {
+    this.setState({ selectedTaskId: taskId, detailModalOpen: true });
+  }
+
   render() {
     const {
       tasks,
@@ -96,11 +110,16 @@ export class TasksPage extends Component {
       status,
       priority,
       loading,
-      error
+      error,
+      selectedTaskId,
+      detailModalOpen
     } = this.state;
 
     const me = this.props.me;
+    console.log('TasksPage.render() - me:', me);
     const isLeader = me && me.isAuthenticated && me.role === 'Leader';
+    const isExecutor = me && me.isAuthenticated && me.role === 'Executor';
+    console.log('TasksPage.render() - isLeader:', isLeader, ', isExecutor:', isExecutor);
 
     return (
       <div>
@@ -165,7 +184,9 @@ export class TasksPage extends Component {
           </div>
 
           <button className="btn btn-primary" type="submit" disabled={!isLeader}>Добавить задачу</button>
-        </form>        {loading && <p>Загрузка...</p>}
+        </form>
+
+        {loading && <p>Загрузка...</p>}
         {error && <div className="alert alert-danger">{error}</div>}
 
         <div className="list-group">
@@ -176,17 +197,38 @@ export class TasksPage extends Component {
             const priorityText = typeof task.priority === 'number' ? priorityOptions[task.priority] : (priorityMap[task.priority] || task.priority);
 
             return (
-              <div key={task.id} className="list-group-item">
-                <h6 className="mb-1"><strong>{task.title}</strong></h6>
-                <div className="text-muted mb-1">{task.description || 'Без описания'}</div>
-                <small className="text-muted">
-                  Статус: <strong>{statusText}</strong> | Приоритет: <strong>{priorityText}</strong> | Проект: <strong>{project?.title || task.projectId}</strong>
-                  {executor && <span> | Исполнитель: <strong>{executor.name}</strong></span>}
-                </small>
+              <div key={task.id} className="list-group-item d-flex justify-content-between align-items-start">
+                <div className="flex-grow-1">
+                  <h6 className="mb-1"><strong>{task.title}</strong></h6>
+                  <div className="text-muted mb-1">{task.description || 'Без описания'}</div>
+                  <small className="text-muted">
+                    Статус: <strong>{statusText}</strong> | Приоритет: <strong>{priorityText}</strong> | Проект: <strong>{project?.title || task.projectId}</strong>
+                    {executor && <span> | Исполнитель: <strong>{executor.name}</strong></span>}
+                  </small>
+                </div>
+                {(isLeader || isExecutor) && (
+                  <button
+                    className="btn btn-sm btn-outline-primary ms-2"
+                    onClick={() => this.openTaskDetail(task.id)}
+                  >
+                    Подробнее
+                  </button>
+                )}
               </div>
             );
           })}
         </div>
+
+        {selectedTaskId && (
+          <TaskDetailModal
+            isOpen={detailModalOpen}
+            toggle={this.toggleDetailModal}
+            taskId={selectedTaskId}
+            me={me}
+            projects={projects}
+            executors={executors}
+          />
+        )}
       </div>
     );
   }

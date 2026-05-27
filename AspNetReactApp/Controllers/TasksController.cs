@@ -138,6 +138,34 @@ public class TasksController : ControllerBase
         return NoContent();
     }
 
+    [Authorize]
+    [HttpPut("{id:int}/status")]
+    public async Task<IActionResult> UpdateTaskStatus(int id, [FromBody] UpdateStatusRequest request)
+    {
+        var existing = await _dbService.GetTaskByIdAsync(id);
+        if (existing is null)
+        {
+            return NotFound();
+        }
+
+        if (User.IsInRole(AuthConstants.Roles.Executor))
+        {
+            var currentExecutorId = AuthConstants.GetEmployeeId(User);
+            if (currentExecutorId is null || existing.ExecutorId != currentExecutorId.Value)
+            {
+                return Forbid();
+            }
+        }
+        else if (!User.IsInRole(AuthConstants.Roles.Admin) && !User.IsInRole(AuthConstants.Roles.Leader))
+        {
+            return Forbid();
+        }
+
+        existing.Status = request.Status;
+        await _dbService.UpdateTaskAsync(existing);
+        return NoContent();
+    }
+
     [HttpDelete("{id:int}")]
     [Authorize(Roles = "Admin,Leader")]
     public async Task<IActionResult> DeleteTask(int id)
@@ -154,5 +182,10 @@ public class TasksController : ControllerBase
         public int? ExecutorId { get; set; }
         public JiraClone.Data.Domain.Enums.TaskStatus Status { get; set; } = JiraClone.Data.Domain.Enums.TaskStatus.ToDo;
         public TaskPriority Priority { get; set; } = TaskPriority.Medium;
+    }
+
+    public sealed class UpdateStatusRequest
+    {
+        public JiraClone.Data.Domain.Enums.TaskStatus Status { get; set; }
     }
 }
