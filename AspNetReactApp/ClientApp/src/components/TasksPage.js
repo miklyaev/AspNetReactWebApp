@@ -29,7 +29,7 @@ export class TasksPage extends Component {
       title: '',
       description: '',
       selectedGoalId: '',
-      selectedProjectId: '',
+      selectedProjectId: 'all',
       projectId: '', // for new task
       executorId: '',
       status: 0,
@@ -39,7 +39,6 @@ export class TasksPage extends Component {
       selectedTaskId: null,
       detailModalOpen: false
     };
-
     this.toggleDetailModal = this.toggleDetailModal.bind(this);
     this.openTaskDetail = this.openTaskDetail.bind(this);
   }
@@ -68,7 +67,7 @@ export class TasksPage extends Component {
   async handleGoalChange(goalId) {
     this.setState({
       selectedGoalId: goalId,
-      selectedProjectId: '',
+      selectedProjectId: 'all',
       projects: [],
       tasks: [],
       projectId: ''
@@ -78,6 +77,7 @@ export class TasksPage extends Component {
       try {
         const projects = await apiClient.getProjects(goalId);
         this.setState({ projects });
+        await this.loadTasks(null, goalId); // Load all tasks for the goal by default
       } catch (error) {
         this.setState({ error: error.message });
       }
@@ -87,8 +87,7 @@ export class TasksPage extends Component {
   async handleProjectChange(projectId) {
     this.setState({
       selectedProjectId: projectId,
-      tasks: [],
-      projectId: (projectId && projectId !== 'all') ? projectId : ''
+      tasks: []
     });
 
     if (projectId === 'all') {
@@ -98,15 +97,22 @@ export class TasksPage extends Component {
     }
   }
 
+  async loadTasks(projectId, goalId) {
+    this.setState({ loading: true });
+    try {
+      const tasks = await apiClient.getTasks(projectId, goalId);
+      this.setState({ tasks, loading: false });
+    } catch (error) {
+      this.setState({ loading: false, error: error.message });
+    }
+  }
+
   async handleCreateTask(event) {
     event.preventDefault();
 
     const { title, description, projectId, executorId, status, priority, selectedProjectId, selectedGoalId } = this.state;
 
-    // Если проект выбран в верхнем списке (и это не "все"), используем его
-    const finalProjectId = (selectedProjectId && selectedProjectId !== 'all') ? selectedProjectId : projectId;
-
-    if (!title.trim() || !finalProjectId) {
+    if (!title.trim() || !projectId) {
       return;
     }
 
@@ -114,7 +120,7 @@ export class TasksPage extends Component {
       await apiClient.createTask({
         title: title.trim(),
         description: description.trim() || null,
-        projectId: Number(finalProjectId),
+        projectId: Number(projectId),
         executorId: executorId ? Number(executorId) : null,
         status: Number(status),
         priority: Number(priority)
@@ -122,7 +128,6 @@ export class TasksPage extends Component {
 
       this.setState({ title: '', description: '' });
 
-      // Refresh task list
       if (selectedProjectId === 'all') {
         await this.loadTasks(null, selectedGoalId);
       } else if (selectedProjectId) {
@@ -130,6 +135,19 @@ export class TasksPage extends Component {
       }
     } catch (error) {
       this.setState({ error: error.message });
+    }
+  }
+
+  async handleProjectChange(projectId) {
+    this.setState({
+      selectedProjectId: projectId,
+      tasks: []
+    });
+
+    if (projectId === 'all') {
+      await this.loadTasks(null, this.state.selectedGoalId);
+    } else if (projectId) {
+      await this.loadTasks(projectId, null);
     }
   }
 
@@ -200,19 +218,6 @@ export class TasksPage extends Component {
               {goals.map(g => <option key={g.id} value={g.id}>{g.title}</option>)}
             </select>
           </div>
-          <div className="col-md-6">
-            <label className="form-label"><strong>Проекты</strong></label>
-            <select
-              className="form-select"
-              value={selectedProjectId}
-              onChange={(e) => this.handleProjectChange(e.target.value)}
-              disabled={!selectedGoalId}
-            >
-              <option value="">Выберите проект</option>
-              {selectedGoalId && <option value="all">Все проекты</option>}
-              {projects.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
-            </select>
-          </div>
         </div>
 
         <form className="card card-body mb-4" onSubmit={(event) => this.handleCreateTask(event)}>
@@ -239,23 +244,21 @@ export class TasksPage extends Component {
           </div>
 
           <div className="row g-2 mb-2">
-            {(!selectedProjectId || selectedProjectId === 'all') && (
-              <div className="col-md-6">
-                <label className="form-label"><strong>Проект для задачи</strong></label>
-                <select
-                  className="form-select"
-                  value={projectId}
-                  onChange={(event) => this.setState({ projectId: event.target.value })}
-                  disabled={!canEdit}
-                >
-                  <option value="">Выберите проект</option>
-                  {projects.map((project) => (
-                    <option key={project.id} value={project.id}>{project.title}</option>
-                  ))}
-                </select>
-              </div>
-            )}
-            <div className={(!selectedProjectId || selectedProjectId === 'all') ? "col-md-6" : "col-12"}>
+            <div className="col-md-6">
+              <label className="form-label"><strong>Проект для задачи</strong></label>
+              <select
+                className="form-select"
+                value={projectId}
+                onChange={(event) => this.setState({ projectId: event.target.value })}
+                disabled={!canEdit}
+              >
+                <option value="">Выберите проект</option>
+                {projects.map((project) => (
+                  <option key={project.id} value={project.id}>{project.title}</option>
+                ))}
+              </select>
+            </div>
+            <div className="col-md-6">
               <label className="form-label"><strong>Исполнитель</strong></label>
               <select
                 className="form-select"
@@ -270,10 +273,11 @@ export class TasksPage extends Component {
               </select>
             </div>
           </div>
+
           <div className="row g-2 mb-3">
             <div className="col-md-6">
               <label className="form-label"><strong>Статус задачи</strong></label>
-              <select className="form-select" value={status} onChange={(event) => this.setState({ status: event.target.value })} disabled={!canEdit}>
+              <select className="form-select" value={status} onChange={(event) => this.setState({ status: Number(event.target.value) })} disabled={!canEdit}>
                 {statusOptions.map((option) => (
                   <option key={option.value} value={option.value}>{option.label}</option>
                 ))}
@@ -281,15 +285,30 @@ export class TasksPage extends Component {
             </div>
             <div className="col-md-6">
               <label className="form-label"><strong>Приоритет</strong></label>
-              <select className="form-select" value={priority} onChange={(event) => this.setState({ priority: event.target.value })} disabled={!canEdit}>
+              <select className="form-select" value={priority} onChange={(event) => this.setState({ priority: Number(event.target.value) })} disabled={!canEdit}>
                 {priorityOptions.map((option) => (
                   <option key={option.value} value={option.value}>{option.label}</option>
                 ))}
               </select>
             </div>
           </div>
+
           <button className="btn btn-primary" type="submit" disabled={!canEdit || !projectId}>Добавить задачу</button>
         </form>
+
+        <div className="d-flex align-items-center mb-3">
+          <strong className="me-3">Фильтр проектов</strong>
+          <select
+            className="form-select"
+            style={{ width: '50%', height: 'calc(1.5em + 0.75rem + 2px * 0.8)' }}
+            value={selectedProjectId}
+            onChange={(e) => this.handleProjectChange(e.target.value)}
+            disabled={!selectedGoalId}
+          >
+            {selectedGoalId && <option value="all">Все проекты</option>}
+            {projects.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
+          </select>
+        </div>
 
         {loading && <p>Загрузка...</p>}
         {error && <div className="alert alert-danger">{error}</div>}
