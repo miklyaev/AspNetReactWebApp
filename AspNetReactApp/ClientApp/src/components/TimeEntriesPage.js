@@ -67,20 +67,26 @@ export class TimeEntriesPage extends Component {
   render() {
     const { timeEntries, tasks, executors, taskItemId, executorId, hours, date, loading, error } = this.state;
     const me = this.props.me;
+    const isAdmin = me && me.isAuthenticated && me.isAdmin;
     const isAuthenticated = me && me.isAuthenticated;
+    const isExecutor = me && me.isAuthenticated && me.role === 'Executor';
+    const isLeader = me && me.isAuthenticated && me.role === 'Leader';
 
     return (
       <div>
         <div className="d-flex justify-content-between align-items-center mb-3">
           <h1>Учёт времени</h1>
-          {!isAuthenticated && (
+          {!isAdmin && !isAuthenticated && (
             <div style={{ color: 'red', fontSize: '14px' }}>
               Редактирование в гостевом профиле запрещено! Войдите в свой профиль.
             </div>
           )}
-        </div>
-
-        <form className="card card-body mb-4" onSubmit={(event) => this.handleCreateEntry(event)}>
+          {!isAdmin && isExecutor && (
+            <div style={{ color: 'orange', fontSize: '14px' }}>
+              Вы исполнитель. Ваши права на редактирование ограничены.
+            </div>
+          )}
+        </div>        <form className="card card-body mb-4" onSubmit={(event) => this.handleCreateEntry(event)}>
           <h5 className="mb-3">Добавить запись времени</h5>
           <select
             className="form-select mb-2"

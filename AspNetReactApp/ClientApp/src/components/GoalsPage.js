@@ -48,19 +48,25 @@ export class GoalsPage extends Component {
   render() {
     const { goals, loading, error, title, description } = this.state;
     const me = this.props.me;
+    const isAdmin = me && me.isAuthenticated && me.isAdmin;
     const isLeader = me && me.isAuthenticated && me.role === 'Leader';
+    const isExecutor = me && me.isAuthenticated && me.role === 'Executor';
 
     return (
       <div>
         <div className="d-flex justify-content-between align-items-center mb-3">
           <h1>Цели</h1>
-          {!isLeader && (
+          {!isAdmin && !isLeader && !isExecutor && (
             <div style={{ color: 'red', fontSize: '14px' }}>
               Редактирование в гостевом профиле запрещено! Войдите в свой профиль.
             </div>
           )}
+          {!isAdmin && isExecutor && (
+            <div style={{ color: 'orange', fontSize: '14px' }}>
+              Вы исполнитель. Ваши права на редактирование ограничены.
+            </div>
+          )}
         </div>
-
         <form className="card card-body mb-4" onSubmit={(event) => this.handleCreateGoal(event)}>
           <h5 className="mb-3">Новая цель</h5>
           <input
@@ -68,17 +74,18 @@ export class GoalsPage extends Component {
             placeholder="Название цели"
             value={title}
             onChange={(event) => this.setState({ title: event.target.value })}
-            disabled={!isLeader}
+            disabled={!isLeader && !isAdmin}
           />
           <textarea
             className="form-control mb-3"
             placeholder="Описание"
             value={description}
             onChange={(event) => this.setState({ description: event.target.value })}
-            disabled={!isLeader}
+            disabled={!isLeader && !isAdmin}
           />
-          <button className="btn btn-primary" type="submit" disabled={!isLeader}>Добавить цель</button>
-        </form>        {loading && <p>Загрузка...</p>}
+          <button className="btn btn-primary" type="submit" disabled={!isLeader && !isAdmin}>Добавить цель</button>
+        </form>
+        {loading && <p>Загрузка...</p>}
         {error && <div className="alert alert-danger">{error}</div>}
 
         {goals.map((goal) => (

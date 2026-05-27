@@ -61,15 +61,23 @@ export class ProjectsPage extends Component {
   render() {
     const { goals, projects, title, description, goalId, loading, error } = this.state;
     const me = this.props.me;
+    const isAdmin = me && me.isAuthenticated && me.isAdmin;
     const isLeader = me && me.isAuthenticated && me.role === 'Leader';
+    const isExecutor = me && me.isAuthenticated && me.role === 'Executor';
+    const canEdit = isLeader || isExecutor || isAdmin;
 
     return (
       <div>
         <div className="d-flex justify-content-between align-items-center mb-3">
           <h1>Проекты</h1>
-          {!isLeader && (
+          {!isAdmin && !isLeader && !isExecutor && (
             <div style={{ color: 'red', fontSize: '14px' }}>
               Редактирование в гостевом профиле запрещено! Войдите в свой профиль.
+            </div>
+          )}
+          {!isAdmin && isExecutor && (
+            <div style={{ color: 'orange', fontSize: '14px' }}>
+              Вы исполнитель. Ваши права на редактирование ограничены.
             </div>
           )}
         </div>
@@ -81,28 +89,30 @@ export class ProjectsPage extends Component {
             placeholder="Название проекта"
             value={title}
             onChange={(event) => this.setState({ title: event.target.value })}
-            disabled={!isLeader}
+            disabled={!canEdit}
           />
           <textarea
             className="form-control mb-2"
             placeholder="Описание"
             value={description}
             onChange={(event) => this.setState({ description: event.target.value })}
-            disabled={!isLeader}
+            disabled={!canEdit}
           />
           <select
             className="form-select mb-3"
             value={goalId}
             onChange={(event) => this.setState({ goalId: event.target.value })}
-            disabled={!isLeader}
+            disabled={!canEdit}
           >
             <option value="">Выберите цель</option>
             {goals.map((goal) => (
               <option key={goal.id} value={goal.id}>{goal.title}</option>
             ))}
           </select>
-          <button className="btn btn-primary" type="submit" disabled={!isLeader}>Добавить проект</button>
-        </form>        {loading && <p>Загрузка...</p>}
+          <button className="btn btn-primary" type="submit" disabled={!canEdit}>Добавить проект</button>
+        </form>
+
+        {loading && <p>Загрузка...</p>}
         {error && <div className="alert alert-danger">{error}</div>}
 
         <div className="list-group">

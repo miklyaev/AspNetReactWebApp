@@ -116,22 +116,26 @@ export class TasksPage extends Component {
     } = this.state;
 
     const me = this.props.me;
-    console.log('TasksPage.render() - me:', me);
+    const isAdmin = me && me.isAuthenticated && me.isAdmin;
     const isLeader = me && me.isAuthenticated && me.role === 'Leader';
     const isExecutor = me && me.isAuthenticated && me.role === 'Executor';
-    console.log('TasksPage.render() - isLeader:', isLeader, ', isExecutor:', isExecutor);
+    const canEdit = isLeader || isExecutor || isAdmin;
 
     return (
       <div>
         <div className="d-flex justify-content-between align-items-center mb-3">
           <h1>Задачи</h1>
-          {!isLeader && (
+          {!isAdmin && !isLeader && !isExecutor && (
             <div style={{ color: 'red', fontSize: '14px' }}>
               Редактирование в гостевом профиле запрещено! Войдите в свой профиль.
             </div>
           )}
+          {!isAdmin && isExecutor && (
+            <div style={{ color: 'orange', fontSize: '14px' }}>
+              Вы исполнитель. Ваши права на редактирование ограничены.
+            </div>
+          )}
         </div>
-
         <form className="card card-body mb-4" onSubmit={(event) => this.handleCreateTask(event)}>
           <h5 className="mb-3">Новая задача</h5>
           <input
@@ -139,21 +143,21 @@ export class TasksPage extends Component {
             placeholder="Название задачи"
             value={title}
             onChange={(event) => this.setState({ title: event.target.value })}
-            disabled={!isLeader}
+            disabled={!canEdit}
           />
           <textarea
             className="form-control mb-2"
             placeholder="Описание"
             value={description}
             onChange={(event) => this.setState({ description: event.target.value })}
-            disabled={!isLeader}
+            disabled={!canEdit}
           />
 
           <select
             className="form-select mb-2"
             value={projectId}
             onChange={(event) => this.setState({ projectId: event.target.value })}
-            disabled={!isLeader}
+            disabled={!canEdit}
           >
             <option value="">Выберите проект</option>
             {projects.map((project) => (
@@ -165,7 +169,7 @@ export class TasksPage extends Component {
             className="form-select mb-2"
             value={executorId}
             onChange={(event) => this.setState({ executorId: event.target.value })}
-            disabled={!isLeader}
+            disabled={!canEdit}
           >
             <option value="">Без исполнителя</option>
             {executors.map((executor) => (
@@ -175,14 +179,14 @@ export class TasksPage extends Component {
 
           <div className="row g-2 mb-3">
             <div className="col-md-6">
-              <select className="form-select" value={status} onChange={(event) => this.setState({ status: event.target.value })} disabled={!isLeader}>
+              <select className="form-select" value={status} onChange={(event) => this.setState({ status: event.target.value })} disabled={!canEdit}>
                 {statusOptions.map((option) => (
                   <option key={option} value={option}>{option}</option>
                 ))}
               </select>
             </div>
             <div className="col-md-6">
-              <select className="form-select" value={priority} onChange={(event) => this.setState({ priority: event.target.value })} disabled={!isLeader}>
+              <select className="form-select" value={priority} onChange={(event) => this.setState({ priority: event.target.value })} disabled={!canEdit}>
                 {priorityOptions.map((option) => (
                   <option key={option} value={option}>{option}</option>
                 ))}
@@ -190,9 +194,8 @@ export class TasksPage extends Component {
             </div>
           </div>
 
-          <button className="btn btn-primary" type="submit" disabled={!isLeader}>Добавить задачу</button>
+          <button className="btn btn-primary" type="submit" disabled={!canEdit}>Добавить задачу</button>
         </form>
-
         {loading && <p>Загрузка...</p>}
         {error && <div className="alert alert-danger">{error}</div>}
 
