@@ -22,8 +22,8 @@ public interface IDbService
     // Tasks
     Task<List<TaskItem>> GetTasksAsync();
     Task<List<TaskItem>> GetTasksByProjectIdAsync(int projectId);
-    Task<TaskItem?> GetTaskByIdAsync(int id);
-    Task<TaskItem> CreateTaskAsync(TaskItem task);
+    Task<List<TaskItem>> GetTasksByGoalIdAsync(int goalId);
+    Task<TaskItem?> GetTaskByIdAsync(int id);    Task<TaskItem> CreateTaskAsync(TaskItem task);
     Task UpdateTaskAsync(TaskItem task);
     Task DeleteTaskAsync(int id);
 

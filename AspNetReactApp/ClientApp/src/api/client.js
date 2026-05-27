@@ -46,7 +46,14 @@ export const apiClient = {
   getProjects: (goalId) => request(withQuery('/api/projects', 'goalId', goalId)),
   createProject: (payload) => request('/api/projects', { method: 'POST', body: JSON.stringify(payload) }),
 
-  getTasks: (projectId) => request(withQuery('/api/tasks', 'projectId', projectId)),
+  getTasks: (projectId, goalId) => {
+    let url = '/api/tasks';
+    const params = [];
+    if (projectId) params.push(`projectId=${encodeURIComponent(projectId)}`);
+    if (goalId) params.push(`goalId=${encodeURIComponent(goalId)}`);
+    if (params.length > 0) url += `?${params.join('&')}`;
+    return request(url);
+  },
   getTask: (id) => request(`/api/tasks/${id}`),
   createTask: (payload) => request('/api/tasks', { method: 'POST', body: JSON.stringify(payload) }),
   updateTask: (id, payload) => request(`/api/tasks/${id}`, { method: 'PUT', body: JSON.stringify(payload) }),

@@ -28,18 +28,17 @@ export class ProjectsPage extends Component {
         apiClient.getProjects()
       ]);
 
-      this.setState({
+      this.setState((prevState) => ({
         goals,
         projects,
-        goalId: goals[0]?.id || '',
+        goalId: prevState.goalId || goals[0]?.id || '',
         loading: false,
         error: ''
-      });
+      }));
     } catch (error) {
       this.setState({ loading: false, error: error.message });
     }
   }
-
   async handleCreateProject(event) {
     event.preventDefault();
 
@@ -61,68 +60,86 @@ export class ProjectsPage extends Component {
   render() {
     const { goals, projects, title, description, goalId, loading, error } = this.state;
     const me = this.props.me;
-    const isAdmin = me && me.isAuthenticated && me.isAdmin;
-    const isLeader = me && me.isAuthenticated && me.role === 'Leader';
-    const isExecutor = me && me.isAuthenticated && me.role === 'Executor';
-    const canEdit = isLeader || isExecutor || isAdmin;
+    const isAuthenticated = me && me.isAuthenticated;
+    const role = me && me.role;
+    const isAdmin = me && me.isAdmin;
+
+    // Admin, Leader и Executor могут добавлять и редактировать проекты
+    const canEdit = isAuthenticated && (isAdmin || role === 'Leader' || role === 'Executor');
+
+    const filteredProjects = projects.filter(p => !goalId || p.goalId === Number(goalId));
 
     return (
       <div>
         <div className="d-flex justify-content-between align-items-center mb-3">
           <h1>Проекты</h1>
-          {!isAdmin && !isLeader && !isExecutor && (
+          <div className="d-flex align-items-center">
+            <span className="me-2 fw-bold">Цели:</span>
+            <select
+              className="form-select form-select-sm"
+              style={{ width: 'auto' }}
+              value={goalId}
+              onChange={(event) => this.setState({ goalId: event.target.value })}
+            >
+              <option value="">Все цели</option>
+              {goals.map((goal) => (
+                <option key={goal.id} value={goal.id}>{goal.title}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="mb-3">
+          {!canEdit && isAuthenticated && (
             <div style={{ color: 'red', fontSize: '14px' }}>
-              Редактирование в гостевом профиле запрещено! Войдите в свой профиль.
+              Ваша роль не позволяет редактировать проекты.
             </div>
           )}
-          {!isAdmin && isExecutor && (
-            <div style={{ color: 'orange', fontSize: '14px' }}>
-              Вы исполнитель. Ваши права на редактирование ограничены.
+          {!isAuthenticated && (
+            <div style={{ color: 'red', fontSize: '14px' }}>
+              Редактирование запрещено! Войдите в профиль Admin, Leader или Executor.
             </div>
           )}
         </div>
-
         <form className="card card-body mb-4" onSubmit={(event) => this.handleCreateProject(event)}>
-          <h5 className="mb-3">Новый проект</h5>
+          <h5 className="mb-3">
+            Новый проект {goalId
+              ? `для цели "${goals.find(g => g.id === Number(goalId))?.title}"`
+              : (goals.length > 0 ? `для цели "${goals[0].title}" (по умолчанию)` : '')}
+          </h5>
           <input
             className="form-control mb-2"
             placeholder="Название проекта"
             value={title}
             onChange={(event) => this.setState({ title: event.target.value })}
-            disabled={!canEdit}
+            disabled={!canEdit || goals.length === 0}
           />
           <textarea
             className="form-control mb-2"
             placeholder="Описание"
             value={description}
             onChange={(event) => this.setState({ description: event.target.value })}
-            disabled={!canEdit}
+            disabled={!canEdit || goals.length === 0}
           />
-          <select
-            className="form-select mb-3"
-            value={goalId}
-            onChange={(event) => this.setState({ goalId: event.target.value })}
-            disabled={!canEdit}
-          >
-            <option value="">Выберите цель</option>
-            {goals.map((goal) => (
-              <option key={goal.id} value={goal.id}>{goal.title}</option>
-            ))}
-          </select>
-          <button className="btn btn-primary" type="submit" disabled={!canEdit}>Добавить проект</button>
+          {goals.length === 0 && <div className="text-danger mb-2 small">Нет доступных целей для создания проекта</div>}
+          <button className="btn btn-primary" type="submit" disabled={!canEdit || !title.trim() || goals.length === 0}>
+            Добавить проект
+          </button>
         </form>
-
         {loading && <p>Загрузка...</p>}
         {error && <div className="alert alert-danger">{error}</div>}
 
         <div className="list-group">
-          {projects.map((project) => (
+          {filteredProjects.map((project) => (
             <div key={project.id} className="list-group-item">
               <h6 className="mb-1">{project.title}</h6>
               <div className="text-muted">{project.description || 'Без описания'}</div>
-              <small>GoalId: {project.goalId}</small>
+              <small className="text-secondary">ID: {project.id}</small>
             </div>
           ))}
+          {filteredProjects.length === 0 && !loading && (
+            <div className="text-center p-4 text-muted">Проектов не найдено</div>
+          )}
         </div>
       </div>
     );

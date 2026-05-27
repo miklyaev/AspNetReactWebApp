@@ -2,36 +2,19 @@ import React, { Component } from 'react';
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Form, FormGroup, Label, Input, Spinner } from 'reactstrap';
 import { apiClient } from '../api/client';
 
-const statusOptions = ['К выполнению', 'В работе', 'Готово', 'Отменено'];
-const priorityOptions = ['Низкий', 'Средний', 'Высокий', 'Критический'];
+const statusOptions = [
+  { value: 0, label: 'К выполнению' },
+  { value: 1, label: 'В работе' },
+  { value: 2, label: 'Готово' },
+  { value: 3, label: 'Отменено' }
+];
 
-const statusMap = {
-  'ToDo': 'К выполнению',
-  'InProgress': 'В работе',
-  'Done': 'Готово',
-  'Canceled': 'Отменено'
-};
-
-const statusMapReverse = {
-  'К выполнению': 'ToDo',
-  'В работе': 'InProgress',
-  'Готово': 'Done',
-  'Отменено': 'Canceled'
-};
-
-const priorityMap = {
-  'Low': 'Низкий',
-  'Medium': 'Средний',
-  'High': 'Высокий',
-  'Critical': 'Критический'
-};
-
-const priorityMapReverse = {
-  'Низкий': 'Low',
-  'Средний': 'Medium',
-  'Высокий': 'High',
-  'Критический': 'Critical'
-};
+const priorityOptions = [
+  { value: 0, label: 'Низкий' },
+  { value: 1, label: 'Средний' },
+  { value: 2, label: 'Высокий' },
+  { value: 3, label: 'Критический' }
+];
 
 export class TaskDetailModal extends Component {
   static displayName = TaskDetailModal.name;
@@ -70,21 +53,20 @@ export class TaskDetailModal extends Component {
     }
   }
 
-  async handleStatusChange(newStatusText) {
+  async handleStatusChange(newStatus) {
     const { task } = this.state;
     if (!task) return;
 
     try {
-      const newStatus = statusMapReverse[newStatusText] || newStatusText;
-      await apiClient.updateTaskStatus(task.id, { status: newStatus });
+      const statusValue = Number(newStatus);
+      await apiClient.updateTaskStatus(task.id, { status: statusValue });
       this.setState({
-        task: { ...task, status: newStatus }
+        task: { ...task, status: statusValue }
       });
     } catch (error) {
       this.setState({ error: error.message });
     }
   }
-
   handleCommentTextChange(e) {
     this.setState({ newCommentText: e.target.value });
   }
@@ -133,8 +115,10 @@ export class TaskDetailModal extends Component {
       return null;
     }
 
-    const statusText = typeof task.status === 'number' ? statusOptions[task.status] : (statusMap[task.status] || task.status);
-    const priorityText = typeof task.priority === 'number' ? priorityOptions[task.priority] : (priorityMap[task.priority] || task.priority);
+    const statusObj = statusOptions.find(o => o.value === task.status);
+    const priorityObj = priorityOptions.find(o => o.value === task.priority);
+    const statusText = statusObj ? statusObj.label : task.status;
+    const priorityText = priorityObj ? priorityObj.label : task.priority;
     const project = this.props.projects?.find(p => p.id === task.projectId);
     const executor = this.props.executors?.find(e => e.id === task.executorId);
 
@@ -174,11 +158,11 @@ export class TaskDetailModal extends Component {
                 {canEditStatus ? (
                   <select
                     className="form-select form-select-sm"
-                    value={statusText}
+                    value={task.status}
                     onChange={(e) => this.handleStatusChange(e.target.value)}
                   >
                     {statusOptions.map((option) => (
-                      <option key={option} value={option}>{option}</option>
+                      <option key={option.value} value={option.value}>{option.label}</option>
                     ))}
                   </select>
                 ) : (
@@ -187,7 +171,6 @@ export class TaskDetailModal extends Component {
               </div>
             </div>
           </div>
-
           <div>
             <h6 className="mb-3">Комментарии ({comments.length})</h6>
 

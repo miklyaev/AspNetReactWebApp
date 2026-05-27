@@ -86,26 +86,17 @@ export class ProfilePanel extends Component {
     }
   }
 
-  renderLogin() {
+  renderHideHint() {
     return (
-      <div>
-        <div className="fw-semibold mb-2">Профиль</div>
-        <Form onSubmit={this.onSubmit}>
-          <FormGroup className="mb-2">
-            <Label className="small" for="profile_login">Логин</Label>
-            <Input id="profile_login" value={this.state.login} onChange={this.onLoginChange} />
-          </FormGroup>
-          <FormGroup className="mb-2">
-            <Label className="small" for="profile_password">Пароль</Label>
-            <Input id="profile_password" type="password" value={this.state.password} onChange={this.onPasswordChange} />
-          </FormGroup>
-          <Button color="primary" size="sm" type="submit">Войти</Button>
-        </Form>
-        {this.state.error ? <div className="text-danger small mt-2">{this.state.error}</div> : null}
+      <div className="d-flex align-items-start mb-2" style={{ cursor: 'default' }}>
+        <div className="fw-semibold me-3">Профиль</div>
+        <div className="d-flex align-items-start" style={{ color: 'blue', fontSize: '10px', lineHeight: '1.2' }}>
+          <span className="me-1" style={{ fontSize: '22px', fontWeight: 'bold', lineHeight: '1' }}>↑</span>
+          <span>нажми чтобы<br />скрыть панель</span>
+        </div>
       </div>
     );
   }
-
   renderMe() {
     const me = this.state.me;
     if (!me) {
@@ -114,7 +105,7 @@ export class ProfilePanel extends Component {
 
     return (
       <div>
-        <div className="fw-semibold mb-2">Профиль</div>
+        {this.renderHideHint()}
         <div className="small">{me.name} ({me.login})</div>
         <div className="small">Роль: {me.role}{me.isAdmin ? ' (admin profile)' : ''}</div>
         <div className="mt-2">
@@ -123,7 +114,6 @@ export class ProfilePanel extends Component {
       </div>
     );
   }
-
   render() {
     if (this.state.loading) {
       return <div className="small text-muted">Загрузка...</div>;

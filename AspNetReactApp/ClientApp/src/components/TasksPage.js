@@ -2,22 +2,19 @@ import React, { Component } from 'react';
 import { apiClient } from '../api/client';
 import { TaskDetailModal } from './TaskDetailModal';
 
-const statusOptions = ['К выполнению', 'В работе', 'Готово', 'Отменено'];
-const priorityOptions = ['Низкий', 'Средний', 'Высокий', 'Критический'];
+const statusOptions = [
+  { value: 0, label: 'К выполнению' },
+  { value: 1, label: 'В работе' },
+  { value: 2, label: 'Готово' },
+  { value: 3, label: 'Отменено' }
+];
 
-const statusMap = {
-  'ToDo': 'К выполнению',
-  'InProgress': 'В работе',
-  'Done': 'Готово',
-  'Canceled': 'Отменено'
-};
-
-const priorityMap = {
-  'Low': 'Низкий',
-  'Medium': 'Средний',
-  'High': 'Высокий',
-  'Critical': 'Критический'
-};
+const priorityOptions = [
+  { value: 0, label: 'Низкий' },
+  { value: 1, label: 'Средний' },
+  { value: 2, label: 'Высокий' },
+  { value: 3, label: 'Критический' }
+];
 
 export class TasksPage extends Component {
   static displayName = TasksPage.name;
@@ -26,14 +23,17 @@ export class TasksPage extends Component {
     super(props);
     this.state = {
       tasks: [],
+      goals: [],
       projects: [],
       executors: [],
       title: '',
       description: '',
-      projectId: '',
+      selectedGoalId: '',
+      selectedProjectId: '',
+      projectId: '', // for new task
       executorId: '',
-      status: 'ToDo',
-      priority: 'Medium',
+      status: 0,
+      priority: 1,
       loading: true,
       error: '',
       selectedTaskId: null,
@@ -45,49 +45,102 @@ export class TasksPage extends Component {
   }
 
   async componentDidMount() {
-    await this.loadData();
+    await this.loadInitialData();
   }
 
-  async loadData() {
+  async loadInitialData() {
     try {
-      const [tasks, projects, executors] = await Promise.all([
-        apiClient.getTasks(),
-        apiClient.getProjects(),
+      const [goals, executors] = await Promise.all([
+        apiClient.getGoals(),
         apiClient.getExecutors()
       ]);
 
       this.setState({
-        tasks,
-        projects,
+        goals,
         executors,
-        projectId: projects[0]?.id || '',
-        loading: false,
-        error: ''
+        loading: false
       });
     } catch (error) {
       this.setState({ loading: false, error: error.message });
     }
   }
 
+  async handleGoalChange(goalId) {
+    this.setState({
+      selectedGoalId: goalId,
+      selectedProjectId: '',
+      projects: [],
+      tasks: [],
+      projectId: ''
+    });
+
+    if (goalId) {
+      try {
+        const projects = await apiClient.getProjects(goalId);
+        this.setState({ projects });
+      } catch (error) {
+        this.setState({ error: error.message });
+      }
+    }
+  }
+
+  async handleProjectChange(projectId) {
+    this.setState({
+      selectedProjectId: projectId,
+      tasks: [],
+      projectId: (projectId && projectId !== 'all') ? projectId : ''
+    });
+
+    if (projectId === 'all') {
+      await this.loadTasks(null, this.state.selectedGoalId);
+    } else if (projectId) {
+      await this.loadTasks(projectId, null);
+    }
+  }
+
   async handleCreateTask(event) {
     event.preventDefault();
 
-    const { title, description, projectId, executorId, status, priority } = this.state;
-    if (!title.trim() || !projectId) {
+    const { title, description, projectId, executorId, status, priority, selectedProjectId, selectedGoalId } = this.state;
+
+    // Если проект выбран в верхнем списке (и это не "все"), используем его
+    const finalProjectId = (selectedProjectId && selectedProjectId !== 'all') ? selectedProjectId : projectId;
+
+    if (!title.trim() || !finalProjectId) {
       return;
     }
 
-    await apiClient.createTask({
-      title: title.trim(),
-      description: description.trim() || null,
-      projectId: Number(projectId),
-      executorId: executorId ? Number(executorId) : null,
-      status,
-      priority
-    });
+    try {
+      await apiClient.createTask({
+        title: title.trim(),
+        description: description.trim() || null,
+        projectId: Number(finalProjectId),
+        executorId: executorId ? Number(executorId) : null,
+        status: Number(status),
+        priority: Number(priority)
+      });
 
-    this.setState({ title: '', description: '' });
-    await this.loadData();
+      this.setState({ title: '', description: '' });
+
+      // Refresh task list
+      if (selectedProjectId === 'all') {
+        await this.loadTasks(null, selectedGoalId);
+      } else if (selectedProjectId) {
+        await this.loadTasks(selectedProjectId, null);
+      }
+    } catch (error) {
+      this.setState({ error: error.message });
+    }
+  }
+
+  async loadTasks(projectId, goalId) {
+    this.setState({ loading: true });
+    try {
+      const tasks = await apiClient.getTasks(projectId, goalId);
+      this.setState({ tasks, loading: false });
+    } catch (error) {
+      this.setState({ loading: false, error: error.message });
+    }
   }
 
   toggleDetailModal() {
@@ -101,10 +154,13 @@ export class TasksPage extends Component {
   render() {
     const {
       tasks,
+      goals,
       projects,
       executors,
       title,
       description,
+      selectedGoalId,
+      selectedProjectId,
       projectId,
       executorId,
       status,
@@ -130,72 +186,111 @@ export class TasksPage extends Component {
               Редактирование в гостевом профиле запрещено! Войдите в свой профиль.
             </div>
           )}
-          {!isAdmin && isExecutor && (
-            <div style={{ color: 'orange', fontSize: '14px' }}>
-              Вы исполнитель. Ваши права на редактирование ограничены.
-            </div>
-          )}
         </div>
+
+        <div className="row mb-4">
+          <div className="col-md-6">
+            <label className="form-label"><strong>Цели</strong></label>
+            <select
+              className="form-select"
+              value={selectedGoalId}
+              onChange={(e) => this.handleGoalChange(e.target.value)}
+            >
+              <option value="">Выберите цель</option>
+              {goals.map(g => <option key={g.id} value={g.id}>{g.title}</option>)}
+            </select>
+          </div>
+          <div className="col-md-6">
+            <label className="form-label"><strong>Проекты</strong></label>
+            <select
+              className="form-select"
+              value={selectedProjectId}
+              onChange={(e) => this.handleProjectChange(e.target.value)}
+              disabled={!selectedGoalId}
+            >
+              <option value="">Выберите проект</option>
+              {selectedGoalId && <option value="all">Все проекты</option>}
+              {projects.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
+            </select>
+          </div>
+        </div>
+
         <form className="card card-body mb-4" onSubmit={(event) => this.handleCreateTask(event)}>
           <h5 className="mb-3">Новая задача</h5>
-          <input
-            className="form-control mb-2"
-            placeholder="Название задачи"
-            value={title}
-            onChange={(event) => this.setState({ title: event.target.value })}
-            disabled={!canEdit}
-          />
-          <textarea
-            className="form-control mb-2"
-            placeholder="Описание"
-            value={description}
-            onChange={(event) => this.setState({ description: event.target.value })}
-            disabled={!canEdit}
-          />
+          <div className="mb-2">
+            <label className="form-label"><strong>Название задачи</strong></label>
+            <input
+              className="form-control"
+              placeholder="Введите название"
+              value={title}
+              onChange={(event) => this.setState({ title: event.target.value })}
+              disabled={!canEdit}
+            />
+          </div>
+          <div className="mb-2">
+            <label className="form-label"><strong>Описание</strong></label>
+            <textarea
+              className="form-control"
+              placeholder="Введите описание"
+              value={description}
+              onChange={(event) => this.setState({ description: event.target.value })}
+              disabled={!canEdit}
+            />
+          </div>
 
-          <select
-            className="form-select mb-2"
-            value={projectId}
-            onChange={(event) => this.setState({ projectId: event.target.value })}
-            disabled={!canEdit}
-          >
-            <option value="">Выберите проект</option>
-            {projects.map((project) => (
-              <option key={project.id} value={project.id}>{project.title}</option>
-            ))}
-          </select>
-
-          <select
-            className="form-select mb-2"
-            value={executorId}
-            onChange={(event) => this.setState({ executorId: event.target.value })}
-            disabled={!canEdit}
-          >
-            <option value="">Без исполнителя</option>
-            {executors.map((executor) => (
-              <option key={executor.id} value={executor.id}>{executor.name}</option>
-            ))}
-          </select>
-
-          <div className="row g-2 mb-3">
-            <div className="col-md-6">
-              <select className="form-select" value={status} onChange={(event) => this.setState({ status: event.target.value })} disabled={!canEdit}>
-                {statusOptions.map((option) => (
-                  <option key={option} value={option}>{option}</option>
-                ))}
-              </select>
-            </div>
-            <div className="col-md-6">
-              <select className="form-select" value={priority} onChange={(event) => this.setState({ priority: event.target.value })} disabled={!canEdit}>
-                {priorityOptions.map((option) => (
-                  <option key={option} value={option}>{option}</option>
+          <div className="row g-2 mb-2">
+            {(!selectedProjectId || selectedProjectId === 'all') && (
+              <div className="col-md-6">
+                <label className="form-label"><strong>Проект для задачи</strong></label>
+                <select
+                  className="form-select"
+                  value={projectId}
+                  onChange={(event) => this.setState({ projectId: event.target.value })}
+                  disabled={!canEdit}
+                >
+                  <option value="">Выберите проект</option>
+                  {projects.map((project) => (
+                    <option key={project.id} value={project.id}>{project.title}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+            <div className={(!selectedProjectId || selectedProjectId === 'all') ? "col-md-6" : "col-12"}>
+              <label className="form-label"><strong>Исполнитель</strong></label>
+              <select
+                className="form-select"
+                value={executorId}
+                onChange={(event) => this.setState({ executorId: event.target.value })}
+                disabled={!canEdit}
+              >
+                <option value="">Без исполнителя</option>
+                {executors.map((executor) => (
+                  <option key={executor.id} value={executor.id}>{executor.name}</option>
                 ))}
               </select>
             </div>
           </div>
-
-          <button className="btn btn-primary" type="submit" disabled={!canEdit}>Добавить задачу</button>
+          <div className="row g-2 mb-3">
+            <div className="col-md-6">
+              <label className="form-label"><strong>Статус задачи</strong></label>
+              <select className="form-select" value={status} onChange={(event) => this.setState({ status: event.target.value })} disabled={!canEdit}>
+                {statusOptions.map((option) => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </select>
+            </div>
+            <div className="col-md-6">
+              <label className="form-label"><strong>Приоритет</strong></label>
+              <select className="form-select" value={priority} onChange={(event) => this.setState({ priority: event.target.value })} disabled={!canEdit}>
+                {priorityOptions.map((option) => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <button className="btn btn-primary" type="submit" disabled={!canEdit || !projectId}>Добавить задачу</button>
         </form>
+
         {loading && <p>Загрузка...</p>}
         {error && <div className="alert alert-danger">{error}</div>}
 
@@ -203,8 +298,8 @@ export class TasksPage extends Component {
           {tasks.map((task) => {
             const project = projects.find(p => p.id === task.projectId);
             const executor = executors.find(e => e.id === task.executorId);
-            const statusText = typeof task.status === 'number' ? statusOptions[task.status] : (statusMap[task.status] || task.status);
-            const priorityText = typeof task.priority === 'number' ? priorityOptions[task.priority] : (priorityMap[task.priority] || task.priority);
+            const statusObj = statusOptions.find(o => o.value === task.status);
+            const priorityObj = priorityOptions.find(o => o.value === task.priority);
 
             return (
               <div key={task.id} className="list-group-item d-flex justify-content-between align-items-start">
@@ -212,11 +307,11 @@ export class TasksPage extends Component {
                   <h6 className="mb-1"><strong>{task.title}</strong></h6>
                   <div className="text-muted mb-1">{task.description || 'Без описания'}</div>
                   <small className="text-muted">
-                    Статус: <strong>{statusText}</strong> | Приоритет: <strong>{priorityText}</strong> | Проект: <strong>{project?.title || task.projectId}</strong>
+                    Статус: <strong>{statusObj?.label || task.status}</strong> | Приоритет: <strong>{priorityObj?.label || task.priority}</strong> | Проект: <strong>{project?.title || task.projectId}</strong>
                     {executor && <span> | Исполнитель: <strong>{executor.name}</strong></span>}
                   </small>
                 </div>
-                {(isLeader || isExecutor) && (
+                {(isLeader || isExecutor || isAdmin) && (
                   <button
                     className="btn btn-sm btn-outline-primary ms-2"
                     onClick={() => this.openTaskDetail(task.id)}

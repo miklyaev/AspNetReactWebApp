@@ -19,15 +19,21 @@ public class TasksController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<TaskItem>>> GetTasks([FromQuery] int? projectId)
+    public async Task<ActionResult<List<TaskItem>>> GetTasks([FromQuery] int? projectId, [FromQuery] int? goalId)
     {
-        var tasks = projectId.HasValue
-            ? await _dbService.GetTasksByProjectIdAsync(projectId.Value)
-            : await _dbService.GetTasksAsync();
+        if (projectId.HasValue)
+        {
+            return Ok(await _dbService.GetTasksByProjectIdAsync(projectId.Value));
+        }
 
+        if (goalId.HasValue)
+        {
+            return Ok(await _dbService.GetTasksByGoalIdAsync(goalId.Value));
+        }
+
+        var tasks = await _dbService.GetTasksAsync();
         return Ok(tasks);
     }
-
     [HttpGet("{id:int}")]
     public async Task<ActionResult<TaskItem>> GetTask(int id)
     {

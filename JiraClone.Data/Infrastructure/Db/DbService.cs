@@ -94,8 +94,14 @@ public class DbService : IDbService
             .Include(t => t.Executor)
             .ToListAsync();
 
-    public async Task<TaskItem?> GetTaskByIdAsync(int id) =>
+    public async Task<List<TaskItem>> GetTasksByGoalIdAsync(int goalId) =>
         await _context.Tasks
+            .Include(t => t.Project)
+            .Where(t => t.Project != null && t.Project.GoalId == goalId)
+            .Include(t => t.Executor)
+            .ToListAsync();
+
+    public async Task<TaskItem?> GetTaskByIdAsync(int id) =>        await _context.Tasks
             .Include(t => t.Comments)
             .Include(t => t.TimeEntries)
             .Include(t => t.Executor)
