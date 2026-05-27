@@ -123,7 +123,14 @@ export class TasksPage extends Component {
 
     return (
       <div>
-        <h1 className="mb-3">Задачи</h1>
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <h1>Задачи</h1>
+          {!isLeader && (
+            <div style={{ color: 'red', fontSize: '14px' }}>
+              Редактирование в гостевом профиле запрещено! Войдите в свой профиль.
+            </div>
+          )}
+        </div>
 
         <form className="card card-body mb-4" onSubmit={(event) => this.handleCreateTask(event)}>
           <h5 className="mb-3">Новая задача</h5>

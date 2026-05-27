@@ -203,7 +203,14 @@ export class Home extends Component {
 
     return (
       <div className="home-container">
-        <h1 className="mb-3 main-title">Simple Jira</h1>
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <h1 className="main-title">Simple Jira</h1>
+          {!isLeader && (
+            <div style={{ color: 'red', fontSize: '14px' }}>
+              Редактирование в гостевом профиле запрещено! Войдите в свой профиль.
+            </div>
+          )}
+        </div>
         <p className="mb-4 lead-text">
           Система управления задачами и временем. Минималистична. Связывает задачи с целями. Учитывает время без friction
         </p>
