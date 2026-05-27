@@ -27,12 +27,19 @@ export class TaskDetailModal extends Component {
       newCommentText: '',
       loading: true,
       error: null,
-      commentsLoading: false
+      commentsLoading: false,
+      saving: false,
+      // Поля для редактирования
+      editTitle: '',
+      editDescription: '',
+      editPriority: 0,
+      editStatus: 0,
+      editTimeSpent: 0
     };
 
-    this.handleStatusChange = this.handleStatusChange.bind(this);
     this.handleCommentSubmit = this.handleCommentSubmit.bind(this);
     this.handleCommentTextChange = this.handleCommentTextChange.bind(this);
+    this.handleSave = this.handleSave.bind(this);
   }
 
   componentDidMount() {
@@ -47,26 +54,43 @@ export class TaskDetailModal extends Component {
         apiClient.getTask(taskId),
         apiClient.getComments(taskId)
       ]);
-      this.setState({ task, comments, loading: false });
+      this.setState({
+        task,
+        comments,
+        loading: false,
+        editTitle: task.title || '',
+        editDescription: task.description || '',
+        editPriority: task.priority,
+        editStatus: task.status,
+        editTimeSpent: task.timeSpent || 0
+      });
     } catch (error) {
       this.setState({ loading: false, error: error.message });
     }
   }
 
-  async handleStatusChange(newStatus) {
-    const { task } = this.state;
+  async handleSave() {
+    const { task, editTitle, editDescription, editPriority, editStatus, editTimeSpent } = this.state;
     if (!task) return;
 
     try {
-      const statusValue = Number(newStatus);
-      await apiClient.updateTaskStatus(task.id, { status: statusValue });
-      this.setState({
-        task: { ...task, status: statusValue }
+      this.setState({ saving: true, error: null });
+      await apiClient.updateTask(task.id, {
+        title: editTitle,
+        description: editDescription,
+        priority: Number(editPriority),
+        status: Number(editStatus),
+        timeSpent: Number(editTimeSpent),
+        projectId: task.projectId,
+        executorId: task.executorId
       });
+      this.setState({ saving: false });
+      this.loadTaskDetails();
     } catch (error) {
-      this.setState({ error: error.message });
+      this.setState({ error: error.message, saving: false });
     }
   }
+
   handleCommentTextChange(e) {
     this.setState({ newCommentText: e.target.value });
   }
@@ -95,10 +119,11 @@ export class TaskDetailModal extends Component {
   }
 
   render() {
-    const { task, comments, newCommentText, loading, error, commentsLoading } = this.state;
+    const {
+      task, comments, newCommentText, loading, error, commentsLoading, saving,
+      editTitle, editDescription, editPriority, editStatus, editTimeSpent
+    } = this.state;
     const me = this.props.me;
-    const isLeader = me && me.role === 'Leader';
-    const isExecutor = me && me.role === 'Executor';
 
     if (loading) {
       return (
@@ -115,120 +140,149 @@ export class TaskDetailModal extends Component {
       return null;
     }
 
-    const statusObj = statusOptions.find(o => o.value === task.status);
-    const priorityObj = priorityOptions.find(o => o.value === task.priority);
-    const statusText = statusObj ? statusObj.label : task.status;
-    const priorityText = priorityObj ? priorityObj.label : task.priority;
     const project = this.props.projects?.find(p => p.id === task.projectId);
     const executor = this.props.executors?.find(e => e.id === task.executorId);
-
-    const canEditStatus = isLeader || (isExecutor && task.executorId === me?.employeeId);
 
     return (
       <Modal isOpen={this.props.isOpen} toggle={this.props.toggle} size="lg">
         <ModalHeader toggle={this.props.toggle}>
-          {task.title}
+          Редактирование задачи
         </ModalHeader>
         <ModalBody>
           {error && <div className="alert alert-danger">{error}</div>}
 
           <div className="card card-body mb-4">
-            <h6 className="mb-2">Информация о задаче</h6>
+            <h6 className="mb-3">Информация о задаче</h6>
+
+            <FormGroup>
+              <Label className="small text-muted mb-1">название задачи</Label>
+              <Input
+                type="text"
+                value={editTitle}
+                onChange={(e) => this.setState({ editTitle: e.target.value })}
+              />
+            </FormGroup>
+
+            <FormGroup>
+              <Label className="small text-muted mb-1">описание</Label>
+              <Input
+                type="textarea"
+                rows="3"
+                value={editDescription}
+                onChange={(e) => this.setState({ editDescription: e.target.value })}
+              />
+            </FormGroup>
+
+            <div className="row">
+              <div className="col-md-6 mb-3">
+                <Label className="small text-muted mb-1 d-block">исполнитель</Label>
+                <div className="py-2">{executor?.name || 'Не назначен'}</div>
+              </div>
+              <div className="col-md-6 mb-3">
+                <Label className="small text-muted mb-1">приоритет</Label>
+                <Input
+                  type="select"
+                  value={editPriority}
+                  onChange={(e) => this.setState({ editPriority: e.target.value })}
+                >
+                  {priorityOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                </Input>
+              </div>
+            </div>
+
+            <div className="row">
+              <div className="col-md-6 mb-3">
+                <Label className="small text-muted mb-1">потраченное время (в часах, например 0.5)</Label>
+                <Input
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  value={editTimeSpent}
+                  onChange={(e) => this.setState({ editTimeSpent: e.target.value })}
+                />
+              </div>
+              <div className="col-md-6 mb-3">
+                <Label className="small text-muted mb-1">статус</Label>
+                <Input
+                  type="select"
+                  value={editStatus}
+                  onChange={(e) => this.setState({ editStatus: e.target.value })}
+                >
+                  {statusOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                </Input>
+              </div>
+            </div>
+
             <div className="mb-2">
-              <small className="text-muted d-block">Описание</small>
-              <div>{task.description || 'Без описания'}</div>
-            </div>
-            <div className="row">
-              <div className="col-md-6 mb-2">
-                <small className="text-muted d-block">Проект</small>
-                <div>{project?.title || `ID: ${task.projectId}`}</div>
-              </div>
-              <div className="col-md-6 mb-2">
-                <small className="text-muted d-block">Исполнитель</small>
-                <div>{executor?.name || 'Не назначен'}</div>
-              </div>
-            </div>
-            <div className="row">
-              <div className="col-md-6 mb-2">
-                <small className="text-muted d-block">Приоритет</small>
-                <div>{priorityText}</div>
-              </div>
-              <div className="col-md-6 mb-2">
-                <small className="text-muted d-block">Статус</small>
-                {canEditStatus ? (
-                  <select
-                    className="form-select form-select-sm"
-                    value={task.status}
-                    onChange={(e) => this.handleStatusChange(e.target.value)}
-                  >
-                    {statusOptions.map((option) => (
-                      <option key={option.value} value={option.value}>{option.label}</option>
-                    ))}
-                  </select>
-                ) : (
-                  <div>{statusText}</div>
-                )}
-              </div>
+              <small className="text-muted d-block">Проект</small>
+              <div>{project?.title || `ID: ${task.projectId}`}</div>
             </div>
           </div>
+
           <div>
             <h6 className="mb-3">Комментарии ({comments.length})</h6>
 
-            {isExecutor && (
-              <Form onSubmit={this.handleCommentSubmit} className="mb-3">
-                <FormGroup>
-                  <Label className="small" for="comment_text">Добавить комментарий</Label>
-                  <textarea
-                    id="comment_text"
-                    className="form-control"
-                    rows="3"
-                    value={newCommentText}
-                    onChange={this.handleCommentTextChange}
-                    placeholder="Введите комментарий..."
-                    disabled={commentsLoading}
-                  />
-                </FormGroup>
-                <Button
-                  color="primary"
-                  size="sm"
-                  type="submit"
-                  disabled={!newCommentText.trim() || commentsLoading}
-                >
-                  {commentsLoading ? 'Отправка...' : 'Отправить'}
-                </Button>
-              </Form>
-            )}
+            <Form onSubmit={this.handleCommentSubmit} className="mb-3">
+              <FormGroup>
+                <Label className="small" for="comment_text">Добавить комментарий</Label>
+                <textarea
+                  id="comment_text"
+                  className="form-control"
+                  rows="2"
+                  value={newCommentText}
+                  onChange={this.handleCommentTextChange}
+                  placeholder="Введите комментарий..."
+                  disabled={commentsLoading}
+                />
+              </FormGroup>
+              <Button
+                color="primary"
+                size="sm"
+                type="submit"
+                disabled={!newCommentText.trim() || commentsLoading}
+              >
+                {commentsLoading ? 'Отправка...' : 'Добавить'}
+              </Button>
+            </Form>
 
-            {comments.length === 0 ? (
-              <div className="alert alert-info small">Комментариев нет</div>
-            ) : (
-              <div className="list-group">
-                {comments.map((comment) => (
-                  <div key={comment.id} className="list-group-item">
-                    <div className="mb-1">
+            <div
+              className="list-group"
+              style={{ maxHeight: '300px', overflowY: 'auto', border: '1px solid #dee2e6', borderRadius: '4px' }}
+            >
+              {comments.length === 0 ? (
+                <div className="p-3 text-center text-muted small">Комментариев нет</div>
+              ) : (
+                comments.map((comment) => (
+                  <div key={comment.id} className="list-group-item list-group-item-action flex-column align-items-start border-0 border-bottom">
+                    <div className="d-flex w-100 justify-content-between align-items-center mb-1">
                       <strong className="small">{comment.author?.name || `Автор #${comment.authorId}`}</strong>
-                      <span className="text-muted small ms-2">
-                        {new Date(comment.createdAt).toLocaleString('ru-RU')}
-                      </span>
+                      <div className="d-flex align-items-center">
+                        <span className="text-muted small me-2">
+                          {new Date(comment.createdAt).toLocaleString('ru-RU')}
+                        </span>
+                        <Button
+                          close
+                          size="sm"
+                          style={{ fontSize: '1rem' }}
+                          onClick={() => {
+                            if (window.confirm('Удалить комментарий?')) {
+                              apiClient.deleteComment(comment.id).then(() => this.loadTaskDetails());
+                            }
+                          }}
+                        />
+                      </div>
                     </div>
-                    <div className="small">{comment.text}</div>
-                    {isLeader && (
-                      <Button
-                        close
-                        size="sm"
-                        className="mt-1"
-                        onClick={() => {
-                          apiClient.deleteComment(comment.id).then(() => this.loadTaskDetails());
-                        }}
-                      />
-                    )}
+                    <div className="small text-break">{comment.text}</div>
                   </div>
-                ))}
-              </div>
-            )}
+                ))
+              )}
+            </div>
           </div>
         </ModalBody>
         <ModalFooter>
+          <Button color="primary" onClick={this.handleSave} disabled={saving}>
+            {saving ? 'Сохранение...' : 'Сохранить'}
+          </Button>
           <Button color="secondary" onClick={this.props.toggle}>Закрыть</Button>
         </ModalFooter>
       </Modal>

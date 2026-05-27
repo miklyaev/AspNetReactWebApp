@@ -17,4 +17,6 @@ public class TaskItem : BaseEntity, ITaskItem
 
     public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
     public virtual ICollection<TimeEntry> TimeEntries { get; set; } = new List<TimeEntry>();
+
+    public double TimeSpent { get; set; }
 }

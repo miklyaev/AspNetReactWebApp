@@ -80,6 +80,7 @@ public class TasksController : ControllerBase
     }
 
     [HttpPut("{id:int}")]
+    [Authorize]
     public async Task<IActionResult> UpdateTask(int id, [FromBody] TaskRequest request)
     {
         var existing = await _dbService.GetTaskByIdAsync(id);
@@ -88,36 +89,10 @@ public class TasksController : ControllerBase
             return NotFound();
         }
 
-        if (User.IsInRole(AuthConstants.Roles.Executor))
-        {
-            var currentExecutorId = AuthConstants.GetEmployeeId(User);
-            if (currentExecutorId is null || existing.ExecutorId != currentExecutorId.Value)
-            {
-                return Forbid();
-            }
-
-            var onlyStatusChange =
-                request.ProjectId == existing.ProjectId &&
-                request.ExecutorId == existing.ExecutorId &&
-                request.Priority == existing.Priority &&
-                string.Equals(request.Title?.Trim(), existing.Title, StringComparison.Ordinal) &&
-                string.Equals(request.Description?.Trim(), existing.Description, StringComparison.Ordinal);
-
-            if (!onlyStatusChange)
-            {
-                return Forbid();
-            }
-        }
-        else if (!User.IsInRole(AuthConstants.Roles.Admin) && !User.IsInRole(AuthConstants.Roles.Leader))
-        {
-            return Forbid();
-        }
-
         if (string.IsNullOrWhiteSpace(request.Title))
         {
             return BadRequest("Title is required.");
         }
-
         var project = await _dbService.GetProjectByIdAsync(request.ProjectId);
         if (project is null)
         {
@@ -139,6 +114,7 @@ public class TasksController : ControllerBase
         existing.ExecutorId = request.ExecutorId;
         existing.Status = request.Status;
         existing.Priority = request.Priority;
+        existing.TimeSpent = request.TimeSpent;
 
         await _dbService.UpdateTaskAsync(existing);
         return NoContent();
@@ -154,26 +130,13 @@ public class TasksController : ControllerBase
             return NotFound();
         }
 
-        if (User.IsInRole(AuthConstants.Roles.Executor))
-        {
-            var currentExecutorId = AuthConstants.GetEmployeeId(User);
-            if (currentExecutorId is null || existing.ExecutorId != currentExecutorId.Value)
-            {
-                return Forbid();
-            }
-        }
-        else if (!User.IsInRole(AuthConstants.Roles.Admin) && !User.IsInRole(AuthConstants.Roles.Leader))
-        {
-            return Forbid();
-        }
-
         existing.Status = request.Status;
         await _dbService.UpdateTaskAsync(existing);
         return NoContent();
     }
 
     [HttpDelete("{id:int}")]
-    [Authorize(Roles = "Admin,Leader")]
+    [Authorize]
     public async Task<IActionResult> DeleteTask(int id)
     {
         await _dbService.DeleteTaskAsync(id);
@@ -188,8 +151,8 @@ public class TasksController : ControllerBase
         public int? ExecutorId { get; set; }
         public JiraClone.Data.Domain.Enums.TaskStatus Status { get; set; } = JiraClone.Data.Domain.Enums.TaskStatus.ToDo;
         public TaskPriority Priority { get; set; } = TaskPriority.Medium;
+        public double TimeSpent { get; set; }
     }
-
     public sealed class UpdateStatusRequest
     {
         public JiraClone.Data.Domain.Enums.TaskStatus Status { get; set; }

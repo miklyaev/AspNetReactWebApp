@@ -136,15 +136,21 @@ export class TimeEntriesPage extends Component {
         {error && <div className="alert alert-danger">{error}</div>}
 
         <div className="list-group">
-          {timeEntries.map((entry) => (
-            <div key={entry.id} className="list-group-item">
-              <strong>{entry.hours} ч.</strong>
-              <div className="text-muted">TaskId: {entry.taskItemId}, ExecutorId: {entry.executorId}</div>
-              <small>{entry.date}</small>
-            </div>
-          ))}
-        </div>
-      </div>
+          {timeEntries.map((entry) => {
+            const task = tasks.find(t => t.id === entry.taskItemId);
+            const executor = executors.find(e => e.id === entry.executorId);
+            return (
+              <div key={entry.id} className="list-group-item">
+                <strong>{entry.hours} ч.</strong>
+                <div className="text-muted">
+                  Задача: <strong>{task?.title || `ID: ${entry.taskItemId}`}</strong>,
+                  Исполнитель: <strong>{executor?.name || `ID: ${entry.executorId}`}</strong>
+                </div>
+                <small>{new Date(entry.date).toLocaleString('ru-RU')}</small>
+              </div>
+            );
+          })}
+        </div>      </div>
     );
   }
 }
