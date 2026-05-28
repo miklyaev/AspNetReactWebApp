@@ -28,13 +28,13 @@ public class CommentsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<Comment>> CreateComment([FromBody] CommentRequest request)
     {
-        if (AuthConstants.IsAdmin(User) || User.IsInRole(AuthConstants.Roles.Leader))
+        // Комментировать могут только исполнители (Executors)
+        if (!User.IsInRole(AuthConstants.Roles.Executor))
         {
             return Forbid();
         }
 
-        var currentExecutorId = AuthConstants.GetEmployeeId(User);
-        if (currentExecutorId is null || request.AuthorId != currentExecutorId.Value)
+        var currentExecutorId = AuthConstants.GetEmployeeId(User);        if (currentExecutorId is null || request.AuthorId != currentExecutorId.Value)
         {
             return Forbid();
         }

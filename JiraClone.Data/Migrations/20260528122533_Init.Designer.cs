@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace JiraClone.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260521162801_Init_21052026")]
-    partial class Init_21052026
+    [Migration("20260528122533_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -58,7 +58,7 @@ namespace JiraClone.Data.Migrations
                     b.ToTable("Comments");
                 });
 
-            modelBuilder.Entity("JiraClone.Data.Domain.Entities.Executor", b =>
+            modelBuilder.Entity("JiraClone.Data.Domain.Entities.Employee", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -73,16 +73,39 @@ namespace JiraClone.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("EmployeeType")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)");
+
+                    b.Property<string>("Login")
+                        .IsRequired()
+                        .HasMaxLength(12)
+                        .HasColumnType("character varying(12)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<string>("Position")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Executors");
+                    b.ToTable("Employees");
+
+                    b.HasDiscriminator<string>("EmployeeType").HasValue("Employee");
+
+                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("JiraClone.Data.Domain.Entities.Goal", b =>
@@ -109,6 +132,47 @@ namespace JiraClone.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Goals");
+                });
+
+            modelBuilder.Entity("JiraClone.Data.Domain.Entities.Profile", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("EmployeeId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ExternalKey")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<bool>("IsAdminProfile")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("TablesColumnsJson")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeId")
+                        .IsUnique()
+                        .HasFilter("\"EmployeeId\" IS NOT NULL");
+
+                    b.HasIndex("ExternalKey")
+                        .IsUnique()
+                        .HasFilter("\"ExternalKey\" IS NOT NULL");
+
+                    b.ToTable("Profiles");
                 });
 
             modelBuilder.Entity("JiraClone.Data.Domain.Entities.Project", b =>
@@ -168,6 +232,9 @@ namespace JiraClone.Data.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
+                    b.Property<double>("TimeSpent")
+                        .HasColumnType("double precision");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("text");
@@ -220,6 +287,34 @@ namespace JiraClone.Data.Migrations
                     b.ToTable("TimeEntries");
                 });
 
+            modelBuilder.Entity("JiraClone.Data.Domain.Entities.Executor", b =>
+                {
+                    b.HasBaseType("JiraClone.Data.Domain.Entities.Employee");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasDiscriminator().HasValue("Executor");
+                });
+
+            modelBuilder.Entity("JiraClone.Data.Domain.Entities.Leader", b =>
+                {
+                    b.HasBaseType("JiraClone.Data.Domain.Entities.Employee");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.ToTable("Employees", t =>
+                        {
+                            t.Property("Password")
+                                .HasColumnName("Leader_Password");
+                        });
+
+                    b.HasDiscriminator().HasValue("Leader");
+                });
+
             modelBuilder.Entity("JiraClone.Data.Domain.Entities.Comment", b =>
                 {
                     b.HasOne("JiraClone.Data.Domain.Entities.Executor", "Author")
@@ -237,6 +332,16 @@ namespace JiraClone.Data.Migrations
                     b.Navigation("Author");
 
                     b.Navigation("TaskItem");
+                });
+
+            modelBuilder.Entity("JiraClone.Data.Domain.Entities.Profile", b =>
+                {
+                    b.HasOne("JiraClone.Data.Domain.Entities.Employee", "Employee")
+                        .WithOne()
+                        .HasForeignKey("JiraClone.Data.Domain.Entities.Profile", "EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Employee");
                 });
 
             modelBuilder.Entity("JiraClone.Data.Domain.Entities.Project", b =>
@@ -287,11 +392,6 @@ namespace JiraClone.Data.Migrations
                     b.Navigation("TaskItem");
                 });
 
-            modelBuilder.Entity("JiraClone.Data.Domain.Entities.Executor", b =>
-                {
-                    b.Navigation("Tasks");
-                });
-
             modelBuilder.Entity("JiraClone.Data.Domain.Entities.Goal", b =>
                 {
                     b.Navigation("Projects");
@@ -307,6 +407,11 @@ namespace JiraClone.Data.Migrations
                     b.Navigation("Comments");
 
                     b.Navigation("TimeEntries");
+                });
+
+            modelBuilder.Entity("JiraClone.Data.Domain.Entities.Executor", b =>
+                {
+                    b.Navigation("Tasks");
                 });
 #pragma warning restore 612, 618
         }

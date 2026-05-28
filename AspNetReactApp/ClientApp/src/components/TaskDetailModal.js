@@ -111,7 +111,7 @@ export class TaskDetailModal extends Component {
         taskItemId: task.id,
         authorId: me.employeeId
       });
-      this.setState({ newCommentText: '' });
+      this.setState({ newCommentText: '', commentsLoading: false });
       await this.loadTaskDetails();
     } catch (error) {
       this.setState({ error: error.message, commentsLoading: false });

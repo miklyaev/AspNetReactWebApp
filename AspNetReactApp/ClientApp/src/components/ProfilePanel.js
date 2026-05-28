@@ -114,6 +114,45 @@ export class ProfilePanel extends Component {
       </div>
     );
   }
+
+  renderLogin() {
+    return (
+      <div>
+        {this.renderHideHint()}
+        <Form onSubmit={this.onSubmit}>
+          <FormGroup className="mb-2">
+            <Label for="login" hidden>Логин</Label>
+            <Input
+              type="text"
+              name="login"
+              id="login"
+              placeholder="Логин"
+              size="sm"
+              value={this.state.login}
+              onChange={this.onLoginChange}
+              required
+            />
+          </FormGroup>
+          <FormGroup className="mb-2">
+            <Label for="password" hidden>Пароль</Label>
+            <Input
+              type="password"
+              name="password"
+              id="password"
+              placeholder="Пароль"
+              size="sm"
+              value={this.state.password}
+              onChange={this.onPasswordChange}
+              required
+            />
+          </FormGroup>
+          {this.state.error && <div className="text-danger small mb-2">{this.state.error}</div>}
+          <Button color="primary" size="sm" block type="submit">Войти</Button>
+        </Form>
+      </div>
+    );
+  }
+
   render() {
     if (this.state.loading) {
       return <div className="small text-muted">Загрузка...</div>;
