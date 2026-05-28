@@ -335,9 +335,8 @@ export class TasksPage extends Component {
                     className="btn btn-sm btn-outline-primary ms-2"
                     onClick={() => this.openTaskDetail(task.id)}
                   >
-                    Подробнее
-                  </button>
-                )}
+                    Редактирование
+                  </button>)}
               </div>
             );
           })}

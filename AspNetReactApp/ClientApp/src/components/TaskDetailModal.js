@@ -152,10 +152,8 @@ export class TaskDetailModal extends Component {
           {error && <div className="alert alert-danger">{error}</div>}
 
           <div className="card card-body mb-4">
-            <h6 className="mb-3">Информация о задаче</h6>
-
             <FormGroup>
-              <Label className="small text-muted mb-1">название задачи</Label>
+              <Label className="fw-bold mb-1">Название задачи</Label>
               <Input
                 type="text"
                 value={editTitle}
@@ -164,7 +162,7 @@ export class TaskDetailModal extends Component {
             </FormGroup>
 
             <FormGroup>
-              <Label className="small text-muted mb-1">описание</Label>
+              <Label className="fw-bold mb-1">Описание</Label>
               <Input
                 type="textarea"
                 rows="3"
@@ -174,54 +172,58 @@ export class TaskDetailModal extends Component {
             </FormGroup>
 
             <div className="row">
-              <div className="col-md-6 mb-3">
-                <Label className="small text-muted mb-1 d-block">исполнитель</Label>
+              <div className="col-md-12 mb-3">
+                <Label className="fw-bold mb-1 d-block">Исполнитель</Label>
                 <div className="py-2">{executor?.name || 'Не назначен'}</div>
               </div>
-              <div className="col-md-6 mb-3">
-                <Label className="small text-muted mb-1">приоритет</Label>
-                <Input
-                  type="select"
-                  value={editPriority}
-                  onChange={(e) => this.setState({ editPriority: e.target.value })}
-                >
-                  {priorityOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-                </Input>
-              </div>
             </div>
 
-            <div className="row">
-              <div className="col-md-6 mb-3">
-                <Label className="small text-muted mb-1">потраченное время (в часах, например 0.5)</Label>
-                <Input
-                  type="number"
-                  step="0.1"
-                  min="0"
-                  value={editTimeSpent}
-                  onChange={(e) => this.setState({ editTimeSpent: e.target.value })}
-                />
+            <div className="row align-items-end">
+              <div className="col-md-4 mb-3">
+                <Label className="fw-bold mb-1">Потраченное время<br />(в часах)</Label>
+                <div style={{ width: '75%' }}>
+                  <Input
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    value={editTimeSpent}
+                    onChange={(e) => this.setState({ editTimeSpent: e.target.value })}
+                  />
+                </div>
               </div>
-              <div className="col-md-6 mb-3">
-                <Label className="small text-muted mb-1">статус</Label>
-                <Input
-                  type="select"
-                  value={editStatus}
-                  onChange={(e) => this.setState({ editStatus: e.target.value })}
-                >
-                  {statusOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-                </Input>
+              <div className="col-md-4 mb-3">
+                <Label className="fw-bold mb-1">Приоритет</Label>
+                <div style={{ width: '75%' }}>
+                  <Input
+                    type="select"
+                    value={editPriority}
+                    onChange={(e) => this.setState({ editPriority: e.target.value })}
+                  >
+                    {priorityOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                  </Input>
+                </div>
+              </div>
+              <div className="col-md-4 mb-3">
+                <Label className="fw-bold mb-1">Статус</Label>
+                <div style={{ width: '75%' }}>
+                  <Input
+                    type="select"
+                    value={editStatus}
+                    onChange={(e) => this.setState({ editStatus: e.target.value })}
+                  >
+                    {statusOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                  </Input>
+                </div>
               </div>
             </div>
-
             <div className="mb-2">
-              <small className="text-muted d-block">Проект</small>
+              <Label className="fw-bold d-block mb-1">Проект</Label>
               <div>{project?.title || `ID: ${task.projectId}`}</div>
             </div>
           </div>
 
           <div>
             <h6 className="mb-3">Комментарии ({comments.length})</h6>
-
             <Form onSubmit={this.handleCommentSubmit} className="mb-3">
               <FormGroup>
                 <Label className="small" for="comment_text">Добавить комментарий</Label>
@@ -285,7 +287,7 @@ export class TaskDetailModal extends Component {
           </Button>
           <Button color="secondary" onClick={this.props.toggle}>Закрыть</Button>
         </ModalFooter>
-      </Modal>
+      </Modal >
     );
   }
 }
