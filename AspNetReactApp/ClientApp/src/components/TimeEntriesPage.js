@@ -70,7 +70,6 @@ export class TimeEntriesPage extends Component {
     const isAdmin = me && me.isAuthenticated && me.isAdmin;
     const isAuthenticated = me && me.isAuthenticated;
     const isExecutor = me && me.isAuthenticated && me.role === 'Executor';
-    const isLeader = me && me.isAuthenticated && me.role === 'Leader';
 
     return (
       <div>

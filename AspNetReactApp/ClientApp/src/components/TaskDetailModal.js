@@ -123,7 +123,6 @@ export class TaskDetailModal extends Component {
       task, comments, newCommentText, loading, error, commentsLoading, saving,
       editTitle, editDescription, editPriority, editStatus, editTimeSpent
     } = this.state;
-    const me = this.props.me;
 
     if (loading) {
       return (

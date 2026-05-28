@@ -138,29 +138,6 @@ export class TasksPage extends Component {
     }
   }
 
-  async handleProjectChange(projectId) {
-    this.setState({
-      selectedProjectId: projectId,
-      tasks: []
-    });
-
-    if (projectId === 'all') {
-      await this.loadTasks(null, this.state.selectedGoalId);
-    } else if (projectId) {
-      await this.loadTasks(projectId, null);
-    }
-  }
-
-  async loadTasks(projectId, goalId) {
-    this.setState({ loading: true });
-    try {
-      const tasks = await apiClient.getTasks(projectId, goalId);
-      this.setState({ tasks, loading: false });
-    } catch (error) {
-      this.setState({ loading: false, error: error.message });
-    }
-  }
-
   toggleDetailModal() {
     this.setState({ detailModalOpen: !this.state.detailModalOpen });
   }

@@ -22,9 +22,116 @@ export class Home extends Component {
       executorPosition: '',
       executorErrors: {},
       loading: true,
-      error: ''
+      error: '',
+      profile: null,
+      visibleColumns: {
+        leaders: ['name', 'position', 'email'],
+        executors: ['name', 'position', 'email']
+      },
+      openDropdown: null // 'leaders' or 'executors'
     };
   }
+
+  async loadData() {
+    try {
+      const [leaders, executors, profileData] = await Promise.all([
+        apiClient.getLeaders(),
+        apiClient.getExecutors(),
+        this.props.me?.isAuthenticated ? apiClient.getProfile() : Promise.resolve(null)
+      ]);
+
+      let visibleColumns = {
+        leaders: ['name', 'position', 'email'],
+        executors: ['name', 'position', 'email']
+      };
+
+      if (profileData && profileData.tablesColumnsJson) {
+        try {
+          const savedColumns = JSON.parse(profileData.tablesColumnsJson);
+          if (savedColumns.leaders) visibleColumns.leaders = savedColumns.leaders;
+          if (savedColumns.executors) visibleColumns.executors = savedColumns.executors;
+        } catch (e) {
+          console.error('Error parsing profile columns', e);
+        }
+      }
+
+      this.setState({
+        leaders,
+        executors,
+        profile: profileData,
+        visibleColumns,
+        loading: false,
+        error: ''
+      });
+    } catch (error) {
+      this.setState({ loading: false, error: error.message });
+    }
+  }
+
+  async toggleColumn(tableKey, columnKey) {
+    const { visibleColumns } = this.state;
+    const currentColumns = visibleColumns[tableKey];
+    let newColumns;
+
+    if (currentColumns.includes(columnKey)) {
+      newColumns = currentColumns.filter(c => c !== columnKey);
+    } else {
+      newColumns = [...currentColumns, columnKey];
+    }
+
+    const newVisibleColumns = {
+      ...visibleColumns,
+      [tableKey]: newColumns
+    };
+
+    this.setState({ visibleColumns: newVisibleColumns });
+
+    if (this.props.me?.isAuthenticated) {
+      try {
+        await apiClient.updateProfile({
+          tablesColumns: newVisibleColumns
+        });
+      } catch (e) {
+        console.error('Failed to save profile columns', e);
+      }
+    }
+  }
+
+  renderColumnSelector(tableKey, allColumns) {
+    const { visibleColumns, openDropdown } = this.state;
+    const currentVisible = visibleColumns[tableKey];
+    const isOpen = openDropdown === tableKey;
+
+    return (
+      <div className="dropdown mb-2">
+        <button
+          className="btn btn-outline-primary btn-sm dropdown-toggle"
+          type="button"
+          onClick={() => this.setState({ openDropdown: isOpen ? null : tableKey })}
+        >
+          Столбцы
+        </button>
+        <ul className={`dropdown-menu p-2 ${isOpen ? 'show' : ''}`} style={{ display: isOpen ? 'block' : 'none', right: 0, left: 'auto' }}>
+          {allColumns.map(col => (
+            <li key={col.key} className="form-check mb-1" style={{ paddingLeft: '2.5rem' }}>
+              <input
+                className="form-check-input"
+                type="checkbox"
+                id={`check-${tableKey}-${col.key}`}
+                checked={currentVisible.includes(col.key)}
+                onChange={() => this.toggleColumn(tableKey, col.key)}
+                style={{ cursor: 'pointer' }}
+              />
+              <label className="form-check-label" htmlFor={`check-${tableKey}-${col.key}`} style={{ cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                {col.label}
+              </label>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
+
 
   validateLeaderForm() {
     const errors = {};
@@ -109,23 +216,6 @@ export class Home extends Component {
     await this.loadData();
   }
 
-  async loadData() {
-    try {
-      const [leaders, executors] = await Promise.all([
-        apiClient.getLeaders(),
-        apiClient.getExecutors()
-      ]);
-
-      this.setState({
-        leaders,
-        executors,
-        loading: false,
-        error: ''
-      });
-    } catch (error) {
-      this.setState({ loading: false, error: error.message });
-    }
-  }
   async handleAddLeader(event) {
     event.preventDefault();
 
@@ -192,7 +282,8 @@ export class Home extends Component {
       executorPassword,
       executorPosition,
       loading,
-      error
+      error,
+      visibleColumns
     } = this.state;
 
     const leaderErrors = this.state.leaderErrors || {};
@@ -203,6 +294,28 @@ export class Home extends Component {
     const isExecutor = me && me.isAuthenticated && me.role === 'Executor';
     const canEditAll = isLeader || isAdmin;
     const canEditExecutors = isLeader || isExecutor || isAdmin;
+
+    const leaderCols = [
+      { key: 'name', label: 'Имя' },
+      { key: 'position', label: 'Должность' },
+      { key: 'email', label: 'Email' },
+      { key: 'phone', label: 'Телефон' },
+      { key: 'address', label: 'Адрес' },
+      { key: 'login', label: 'Логин' },
+      { key: 'createdAt', label: 'Дата создания' },
+      { key: 'updatedAt', label: 'Дата обновления' }
+    ];
+
+    const executorCols = [
+      { key: 'name', label: 'Имя' },
+      { key: 'position', label: 'Должность' },
+      { key: 'email', label: 'Email' },
+      { key: 'phone', label: 'Телефон' },
+      { key: 'address', label: 'Адрес' },
+      { key: 'login', label: 'Логин' },
+      { key: 'createdAt', label: 'Дата создания' },
+      { key: 'updatedAt', label: 'Дата обновления' }
+    ];
 
     return (
       <div className="home-container">
@@ -226,22 +339,35 @@ export class Home extends Component {
         {error && <div className="alert alert-danger">{error}</div>}
 
         <div className="section-block mt-4 leaders-block">
-          <h3 className="section-title">Ответственные лица</h3>
+          <div className="d-flex justify-content-between align-items-center mb-2">
+            <h3 className="section-title mb-0">Ответственные лица</h3>
+            {this.renderColumnSelector('leaders', leaderCols)}
+          </div>
           <table className="table table-striped">
             <thead>
               <tr>
-                <th>Имя</th>
-                <th>Должность</th>
-                <th>Email</th>
+                {visibleColumns.leaders.includes('name') && <th>Имя</th>}
+                {visibleColumns.leaders.includes('position') && <th>Должность</th>}
+                {visibleColumns.leaders.includes('email') && <th>Email</th>}
+                {visibleColumns.leaders.includes('phone') && <th>Телефон</th>}
+                {visibleColumns.leaders.includes('address') && <th>Адрес</th>}
+                {visibleColumns.leaders.includes('login') && <th>Логин</th>}
+                {visibleColumns.leaders.includes('createdAt') && <th>Создан</th>}
+                {visibleColumns.leaders.includes('updatedAt') && <th>Обновлен</th>}
                 <th></th>
               </tr>
             </thead>
             <tbody>
               {leaders.map((leader) => (
                 <tr key={leader.id}>
-                  <td>{leader.name}</td>
-                  <td>{leader.position}</td>
-                  <td>{leader.email}</td>
+                  {visibleColumns.leaders.includes('name') && <td>{leader.name}</td>}
+                  {visibleColumns.leaders.includes('position') && <td>{leader.position}</td>}
+                  {visibleColumns.leaders.includes('email') && <td>{leader.email}</td>}
+                  {visibleColumns.leaders.includes('phone') && <td>{leader.phone}</td>}
+                  {visibleColumns.leaders.includes('address') && <td>{leader.address}</td>}
+                  {visibleColumns.leaders.includes('login') && <td>{leader.login}</td>}
+                  {visibleColumns.leaders.includes('createdAt') && <td>{new Date(leader.createdAt).toLocaleDateString()}</td>}
+                  {visibleColumns.leaders.includes('updatedAt') && <td>{new Date(leader.updatedAt).toLocaleDateString()}</td>}
                   <td className="text-end">
                     <button
                       type="button"
@@ -321,22 +447,35 @@ export class Home extends Component {
         </div>
 
         <div className="section-block mt-5 executors-block">
-          <h3 className="section-title">Исполнители</h3>
+          <div className="d-flex justify-content-between align-items-center mb-2">
+            <h3 className="section-title mb-0">Исполнители</h3>
+            {this.renderColumnSelector('executors', executorCols)}
+          </div>
           <table className="table table-striped">
             <thead>
               <tr>
-                <th>Имя</th>
-                <th>Должность</th>
-                <th>Email</th>
+                {visibleColumns.executors.includes('name') && <th>Имя</th>}
+                {visibleColumns.executors.includes('position') && <th>Должность</th>}
+                {visibleColumns.executors.includes('email') && <th>Email</th>}
+                {visibleColumns.executors.includes('phone') && <th>Телефон</th>}
+                {visibleColumns.executors.includes('address') && <th>Адрес</th>}
+                {visibleColumns.executors.includes('login') && <th>Логин</th>}
+                {visibleColumns.executors.includes('createdAt') && <th>Создан</th>}
+                {visibleColumns.executors.includes('updatedAt') && <th>Обновлен</th>}
                 <th></th>
               </tr>
             </thead>
             <tbody>
               {executors.map((executor) => (
                 <tr key={executor.id}>
-                  <td>{executor.name}</td>
-                  <td>{executor.position}</td>
-                  <td>{executor.email}</td>
+                  {visibleColumns.executors.includes('name') && <td>{executor.name}</td>}
+                  {visibleColumns.executors.includes('position') && <td>{executor.position}</td>}
+                  {visibleColumns.executors.includes('email') && <td>{executor.email}</td>}
+                  {visibleColumns.executors.includes('phone') && <td>{executor.phone}</td>}
+                  {visibleColumns.executors.includes('address') && <td>{executor.address}</td>}
+                  {visibleColumns.executors.includes('login') && <td>{executor.login}</td>}
+                  {visibleColumns.executors.includes('createdAt') && <td>{new Date(executor.createdAt).toLocaleDateString()}</td>}
+                  {visibleColumns.executors.includes('updatedAt') && <td>{new Date(executor.updatedAt).toLocaleDateString()}</td>}
                   <td className="text-end">
                     <button
                       type="button"
