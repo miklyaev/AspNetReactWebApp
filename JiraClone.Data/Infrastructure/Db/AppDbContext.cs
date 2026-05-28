@@ -69,6 +69,17 @@ public class AppDbContext : DbContext
             .HasMaxLength(128)
             .IsRequired(false);
 
+        
+        modelBuilder.Entity<Employee>()
+            .Property(e => e.Phone)
+            .HasMaxLength(32)
+            .IsRequired(false);
+
+        modelBuilder.Entity<Employee>()
+            .Property(e => e.Address)
+            .HasMaxLength(256)
+            .IsRequired(false);
+
         modelBuilder.Entity<Profile>()
             .HasOne(p => p.Employee)
             .WithOne()
@@ -92,7 +103,7 @@ public class AppDbContext : DbContext
             .HasForeignKey(t => t.ExecutorId)
             .OnDelete(DeleteBehavior.SetNull);
 
-        // Executor -> Comments (1:M)
+        // Employee -> Comments (1:M)
         modelBuilder.Entity<Employee>()
             .HasMany<Comment>()
             .WithOne(c => c.Author)
