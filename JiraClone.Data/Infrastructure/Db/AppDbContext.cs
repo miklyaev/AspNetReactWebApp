@@ -93,7 +93,7 @@ public class AppDbContext : DbContext
             .OnDelete(DeleteBehavior.SetNull);
 
         // Executor -> Comments (1:M)
-        modelBuilder.Entity<Executor>()
+        modelBuilder.Entity<Employee>()
             .HasMany<Comment>()
             .WithOne(c => c.Author)
             .HasForeignKey(c => c.AuthorId)

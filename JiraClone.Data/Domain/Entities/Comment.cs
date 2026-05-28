@@ -9,5 +9,5 @@ public class Comment : BaseEntity, IComment
     public virtual TaskItem? TaskItem { get; set; }
     
     public int AuthorId { get; set; }
-    public virtual Executor? Author { get; set; }
+    public virtual Employee? Author { get; set; }
 }

@@ -29,12 +29,13 @@ public class CommentsController : ControllerBase
     public async Task<ActionResult<Comment>> CreateComment([FromBody] CommentRequest request)
     {
         // Комментировать могут только исполнители (Executors)
-        if (!User.IsInRole(AuthConstants.Roles.Executor))
-        {
-            return Forbid();
-        }
+        //if (!User.IsInRole(AuthConstants.Roles.Executor))
+        //{
+        //    return Forbid();
+        //}
 
-        var currentExecutorId = AuthConstants.GetEmployeeId(User);        if (currentExecutorId is null || request.AuthorId != currentExecutorId.Value)
+        var currentExecutorId = AuthConstants.GetEmployeeId(User); 
+        if (currentExecutorId is null || request.AuthorId != currentExecutorId.Value)
         {
             return Forbid();
         }
@@ -50,11 +51,11 @@ public class CommentsController : ControllerBase
             return BadRequest("Task not found.");
         }
 
-        var executors = await _dbService.GetExecutorsAsync();
-        if (!executors.Any(e => e.Id == request.AuthorId))
-        {
-            return BadRequest("Author not found.");
-        }
+        //var executors = await _dbService.GetExecutorsAsync();
+        //if (!executors.Any(e => e.Id == request.AuthorId))
+        //{
+        //    return BadRequest("Author not found.");
+        //}
 
         var comment = new Comment
         {
