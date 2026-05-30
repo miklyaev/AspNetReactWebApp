@@ -19,4 +19,5 @@ public class TaskItem : BaseEntity, ITaskItem
     public virtual ICollection<TimeEntry> TimeEntries { get; set; } = new List<TimeEntry>();
 
     public double TimeSpent { get; set; }
+    public double PlannedTime { get; set; }
 }

@@ -34,9 +34,9 @@ export class TaskDetailModal extends Component {
       editDescription: '',
       editPriority: 0,
       editStatus: 0,
-      editTimeSpent: 0
+      editTimeSpent: 0,
+      editPlannedTime: 0
     };
-
     this.handleCommentSubmit = this.handleCommentSubmit.bind(this);
     this.handleCommentTextChange = this.handleCommentTextChange.bind(this);
     this.handleSave = this.handleSave.bind(this);
@@ -62,7 +62,8 @@ export class TaskDetailModal extends Component {
         editDescription: task.description || '',
         editPriority: task.priority,
         editStatus: task.status,
-        editTimeSpent: task.timeSpent || 0
+        editTimeSpent: task.timeSpent || 0,
+        editPlannedTime: task.plannedTime || 0
       });
     } catch (error) {
       this.setState({ loading: false, error: error.message });
@@ -70,7 +71,7 @@ export class TaskDetailModal extends Component {
   }
 
   async handleSave() {
-    const { task, editTitle, editDescription, editPriority, editStatus, editTimeSpent } = this.state;
+    const { task, editTitle, editDescription, editPriority, editStatus, editTimeSpent, editPlannedTime } = this.state;
     if (!task) return;
 
     try {
@@ -81,10 +82,10 @@ export class TaskDetailModal extends Component {
         priority: Number(editPriority),
         status: Number(editStatus),
         timeSpent: Number(editTimeSpent),
+        plannedTime: Number(editPlannedTime),
         projectId: task.projectId,
         executorId: task.executorId
-      });
-      this.setState({ saving: false });
+      }); this.setState({ saving: false });
       this.loadTaskDetails();
     } catch (error) {
       this.setState({ error: error.message, saving: false });
@@ -121,7 +122,7 @@ export class TaskDetailModal extends Component {
   render() {
     const {
       task, comments, newCommentText, loading, error, commentsLoading, saving,
-      editTitle, editDescription, editPriority, editStatus, editTimeSpent
+      editTitle, editDescription, editPriority, editStatus, editTimeSpent, editPlannedTime
     } = this.state;
 
     if (loading) {
@@ -141,6 +142,11 @@ export class TaskDetailModal extends Component {
 
     const project = this.props.projects?.find(p => p.id === task.projectId);
     const executor = this.props.executors?.find(e => e.id === task.executorId);
+
+    const me = this.props.me;
+    const isAdmin = me && me.isAuthenticated && me.isAdmin;
+    const isLeader = me && me.isAuthenticated && me.role === 'Leader';
+    const canSetPlannedTime = isAdmin || isLeader;
 
     return (
       <Modal isOpen={this.props.isOpen} toggle={this.props.toggle} size="lg">
@@ -171,10 +177,22 @@ export class TaskDetailModal extends Component {
             </FormGroup>
 
             <div className="row">
-              <div className="col-md-12 mb-3">
+              <div className="col-md-6 mb-3">
                 <Label className="fw-bold mb-1 d-block">Исполнитель</Label>
                 <div className="py-2">{executor?.name || 'Не назначен'}</div>
               </div>
+              {canSetPlannedTime && (
+                <div className="col-md-6 mb-3">
+                  <Label className="fw-bold mb-1">Планируемое время (ч)</Label>
+                  <Input
+                    type="number"
+                    step="0.25"
+                    min="0"
+                    value={editPlannedTime}
+                    onChange={(e) => this.setState({ editPlannedTime: e.target.value })}
+                  />
+                </div>
+              )}
             </div>
 
             <div className="row align-items-end">
@@ -189,8 +207,7 @@ export class TaskDetailModal extends Component {
                     onChange={(e) => this.setState({ editTimeSpent: e.target.value })}
                   />
                 </div>
-              </div>
-              <div className="col-md-4 mb-3">
+              </div>              <div className="col-md-4 mb-3">
                 <Label className="fw-bold mb-1">Приоритет</Label>
                 <div style={{ width: '75%' }}>
                   <Input

@@ -32,8 +32,8 @@ export class TasksPage extends Component {
       selectedProjectId: 'all',
       projectId: '', // for new task
       executorId: '',
-      status: 0,
-      priority: 1,
+      plannedTime: '',
+      status: 0, priority: 1,
       loading: true,
       error: '',
       selectedTaskId: null,
@@ -110,7 +110,7 @@ export class TasksPage extends Component {
   async handleCreateTask(event) {
     event.preventDefault();
 
-    const { title, description, projectId, executorId, status, priority, selectedProjectId, selectedGoalId } = this.state;
+    const { title, description, projectId, executorId, status, priority, plannedTime, selectedProjectId, selectedGoalId } = this.state;
 
     if (!title.trim() || !projectId) {
       return;
@@ -123,11 +123,11 @@ export class TasksPage extends Component {
         projectId: Number(projectId),
         executorId: executorId ? Number(executorId) : null,
         status: Number(status),
-        priority: Number(priority)
+        priority: Number(priority),
+        plannedTime: plannedTime ? Number(plannedTime) : 0
       });
 
-      this.setState({ title: '', description: '' });
-
+      this.setState({ title: '', description: '', plannedTime: '' });
       if (selectedProjectId === 'all') {
         await this.loadTasks(null, selectedGoalId);
       } else if (selectedProjectId) {
@@ -158,6 +158,7 @@ export class TasksPage extends Component {
       selectedProjectId,
       projectId,
       executorId,
+      plannedTime,
       status,
       priority,
       loading,
@@ -171,7 +172,7 @@ export class TasksPage extends Component {
     const isLeader = me && me.isAuthenticated && me.role === 'Leader';
     const isExecutor = me && me.isAuthenticated && me.role === 'Executor';
     const canEdit = isLeader || isExecutor || isAdmin;
-
+    const canSetPlannedTime = isAdmin || isLeader;
     return (
       <div>
         <div className="d-flex justify-content-between align-items-center mb-3">
@@ -249,8 +250,21 @@ export class TasksPage extends Component {
                 ))}
               </select>
             </div>
+            {canSetPlannedTime && (
+              <div className="col-md-6">
+                <label className="form-label"><strong>Планируемое время (ч)</strong></label>
+                <input
+                  type="number"
+                  step="0.25"
+                  min="0"
+                  className="form-control"
+                  placeholder="0.00"
+                  value={plannedTime}
+                  onChange={(event) => this.setState({ plannedTime: event.target.value })}
+                />
+              </div>
+            )}
           </div>
-
           <div className="row g-2 mb-3">
             <div className="col-md-6">
               <label className="form-label"><strong>Статус задачи</strong></label>

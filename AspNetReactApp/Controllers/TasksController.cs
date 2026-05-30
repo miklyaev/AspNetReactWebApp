@@ -72,9 +72,9 @@ public class TasksController : ControllerBase
             ProjectId = request.ProjectId,
             ExecutorId = request.ExecutorId,
             Status = request.Status,
-            Priority = request.Priority
+            Priority = request.Priority,
+            PlannedTime = request.PlannedTime
         };
-
         var created = await _dbService.CreateTaskAsync(task);
         return CreatedAtAction(nameof(GetTask), new { id = created.Id }, created);
     }
@@ -115,9 +115,9 @@ public class TasksController : ControllerBase
         existing.Status = request.Status;
         existing.Priority = request.Priority;
         existing.TimeSpent = request.TimeSpent;
+        existing.PlannedTime = request.PlannedTime;
 
-        await _dbService.UpdateTaskAsync(existing);
-        return NoContent();
+        await _dbService.UpdateTaskAsync(existing);        return NoContent();
     }
 
     [Authorize]
@@ -152,8 +152,8 @@ public class TasksController : ControllerBase
         public JiraClone.Data.Domain.Enums.TaskStatus Status { get; set; } = JiraClone.Data.Domain.Enums.TaskStatus.ToDo;
         public TaskPriority Priority { get; set; } = TaskPriority.Medium;
         public double TimeSpent { get; set; }
-    }
-    public sealed class UpdateStatusRequest
+        public double PlannedTime { get; set; }
+    }    public sealed class UpdateStatusRequest
     {
         public JiraClone.Data.Domain.Enums.TaskStatus Status { get; set; }
     }

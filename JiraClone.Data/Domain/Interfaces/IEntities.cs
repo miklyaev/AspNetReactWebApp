@@ -32,8 +32,9 @@ public interface ITaskItem : IBaseEntity
     JiraClone.Data.Domain.Enums.TaskPriority Priority { get; set; }
     int ProjectId { get; set; }
     int? ExecutorId { get; set; }
+    double TimeSpent { get; set; }
+    double PlannedTime { get; set; }
 }
-
 public interface IEmployee : IBaseEntity
 {
     string Name { get; set; }
