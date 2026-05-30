@@ -372,9 +372,7 @@ Kestrel слушает порт 5000
 6. PWA: Workbox включён, регистрация service worker доступна (serviceWorkerRegistration.js)
 7. Переменные окружения для React: используют префикс REACT_APP_*; см. ClientApp/.env
 
-8. Аутентификация и изменения модели Employee: модель пользователей/сотрудников вынесена в абстрактный класс Employee (реализуемый Leader и Executor). Employee содержит поля Login, PasswordHash и опциональное Position. Пароли не хранятся в открытом виде — для хеширования используется BCrypt. В сидере по умолчанию создаются пользователи Leader и Executor с логинами и PasswordHash, полученным из пароля-значения по умолчанию "password1234". Обязательно замените этот пароль в production.
-
-9. Миграции, связанные с аутентификацией и профилем сотрудников: в репозитории добавлены миграции для колонок пароля и позиции (например, 20260525104309_PasswordHashAndPosition и 20260624120000_AddEmployeePosition). Перед запуском приложения локально убедитесь, что база данных актуальна:
+8. Аутентификация и изменения модели Employee: модель пользователей/сотрудников вынесена в абстрактный класс Employee (реализуемый Leader и Executor). Employee содержит поля Login, PasswordHash и опциональное Position. Пароли не хранятся в открытом виде — они хешируются.
 
 ```bash
 dotnet ef database update --project JiraClone.Data --startup-project AspNetReactApp
