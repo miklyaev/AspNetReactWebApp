@@ -64,17 +64,15 @@ export class TimeEntriesPage extends Component {
 
         <div className='row mb-4'>
           <div className='col-md-6'>
-            <label className='form-label'>Проект</label>
-            <select
+            <label className='form-label'>Проект</label>            <select
               className='form-select'
               value={selectedProjectId}
               onChange={(e) => this.setState({ selectedProjectId: e.target.value })}
             >
               <option value=''>Все проекты</option>
               {projects.map(p => (
-                <option key={p.id} value={p.id}>{p.name}</option>
-              ))}
-            </select>
+                <option key={p.id} value={p.id}>{p.title}</option>
+              ))}            </select>
           </div>
           <div className='col-md-6'>
             <label className='form-label'>Исполнитель</label>
