@@ -64,8 +64,9 @@ export class ProjectsPage extends Component {
     const role = me && me.role;
     const isAdmin = me && me.isAdmin;
 
-    // Admin, Leader и Executor могут добавлять и редактировать проекты
-    const canEdit = isAuthenticated && (isAdmin || role === 'Leader' || role === 'Executor');
+    // Только Admin и Leader могут добавлять проекты
+    const canCreateProject = isAuthenticated && (isAdmin || role === 'Leader');
+    const isExecutor = role === 'Executor';
 
     const filteredProjects = projects.filter(p => !goalId || p.goalId === Number(goalId));
 
@@ -90,14 +91,19 @@ export class ProjectsPage extends Component {
         </div>
 
         <div className="mb-3">
-          {!canEdit && isAuthenticated && (
+          {!canCreateProject && isAuthenticated && !isExecutor && (
             <div style={{ color: 'red', fontSize: '14px' }}>
               Ваша роль не позволяет редактировать проекты.
             </div>
           )}
+          {isExecutor && (
+            <div style={{ color: 'orange', fontSize: '14px' }}>
+              Вы исполнитель. Ваши права на добавление проектов ограничены.
+            </div>
+          )}
           {!isAuthenticated && (
             <div style={{ color: 'red', fontSize: '14px' }}>
-              Редактирование запрещено! Войдите в профиль Admin, Leader или Executor.
+              Редактирование запрещено! Войдите в профиль Admin или Leader.
             </div>
           )}
         </div>
@@ -112,21 +118,20 @@ export class ProjectsPage extends Component {
             placeholder="Название проекта"
             value={title}
             onChange={(event) => this.setState({ title: event.target.value })}
-            disabled={!canEdit || goals.length === 0}
+            disabled={!canCreateProject || goals.length === 0}
           />
           <textarea
             className="form-control mb-2"
             placeholder="Описание"
             value={description}
             onChange={(event) => this.setState({ description: event.target.value })}
-            disabled={!canEdit || goals.length === 0}
+            disabled={!canCreateProject || goals.length === 0}
           />
           {goals.length === 0 && <div className="text-danger mb-2 small">Нет доступных целей для создания проекта</div>}
-          <button className="btn btn-primary" type="submit" disabled={!canEdit || !title.trim() || goals.length === 0}>
+          <button className="btn btn-primary" type="submit" disabled={!canCreateProject || !title.trim() || goals.length === 0}>
             Добавить проект
           </button>
-        </form>
-        {loading && <p>Загрузка...</p>}
+        </form>        {loading && <p>Загрузка...</p>}
         {error && <div className="alert alert-danger">{error}</div>}
 
         <div className="list-group">

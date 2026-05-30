@@ -63,7 +63,7 @@ export class GoalsPage extends Component {
           )}
           {!isAdmin && isExecutor && (
             <div style={{ color: 'orange', fontSize: '14px' }}>
-              Вы исполнитель. Ваши права на редактирование ограничены.
+              Вы исполнитель. Ваши права на добавление целей ограничены.
             </div>
           )}
         </div>

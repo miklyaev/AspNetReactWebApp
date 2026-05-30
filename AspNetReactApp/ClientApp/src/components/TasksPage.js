@@ -275,15 +275,14 @@ export class TasksPage extends Component {
                 <label className="form-label"><strong>Планируемое время (ч) <span className="text-danger">*</span></strong></label>
                 <input
                   type="number"
-                  step="0.25"
-                  min="0.01"
+                  step="0.5"
+                  min="0.5"
                   className="form-control"
-                  placeholder="0.00"
+                  placeholder="0.0"
                   value={plannedTime}
                   onChange={(event) => this.setState({ plannedTime: event.target.value })}
                   required
-                />
-                <small className="text-muted">Обязательно для заполнения</small>
+                />                <small className="text-muted">Обязательно для заполнения</small>
               </div>
             )}          </div>
           <div className="row g-2 mb-3">
