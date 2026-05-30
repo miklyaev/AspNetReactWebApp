@@ -64,7 +64,8 @@ export class TimeEntriesPage extends Component {
 
         <div className='row mb-4'>
           <div className='col-md-6'>
-            <label className='form-label'>Проект</label>            <select
+            <label className='form-label'>Проект</label>
+            <select
               className='form-select'
               value={selectedProjectId}
               onChange={(e) => this.setState({ selectedProjectId: e.target.value })}
@@ -72,9 +73,9 @@ export class TimeEntriesPage extends Component {
               <option value=''>Все проекты</option>
               {projects.map(p => (
                 <option key={p.id} value={p.id}>{p.title}</option>
-              ))}            </select>
-          </div>
-          <div className='col-md-6'>
+              ))}
+            </select>
+          </div>          <div className='col-md-6'>
             <label className='form-label'>Исполнитель</label>
             <select
               className='form-select'
@@ -89,7 +90,11 @@ export class TimeEntriesPage extends Component {
           </div>
         </div>
 
-        {loading && <div className='text-center my-5'><div className='spinner-border'></div></div>}
+        {loading && (
+          <div className='text-center my-5'>
+            <div className='spinner-border'></div>
+          </div>
+        )}
         {error && <div className='alert alert-danger'>{error}</div>}
 
         {!loading && (
@@ -107,7 +112,11 @@ export class TimeEntriesPage extends Component {
                 </thead>
                 <tbody>
                   {filteredTasks.length === 0 ? (
-                    <tr><td colSpan='5' className='text-center py-4 text-muted'>Задачи не найдены</td></tr>
+                    <tr>
+                      <td colSpan='5' className='text-center py-4 text-muted'>
+                        Задачи не найдены
+                      </td>
+                    </tr>
                   ) : (
                     filteredTasks.map(task => {
                       const executor = executors.find(e => e.id === task.executorId);
@@ -120,8 +129,8 @@ export class TimeEntriesPage extends Component {
                         <tr key={task.id}>
                           <td>{task.title}</td>
                           <td>{executor?.name || <span className='text-muted'>Не назначен</span>}</td>
-                          <td className='text-end'>{task.plannedTime}</td>
-                          <td className='text-end'>{task.timeSpent}</td>
+                          <td className='text-center'>{task.plannedTime}</td>
+                          <td className='text-center'>{task.timeSpent}</td>
                           <td style={{ width: '200px' }}>
                             <div className='d-flex align-items-center'>
                               <div className='progress flex-grow-1' style={{ height: '8px' }}>
@@ -131,7 +140,9 @@ export class TimeEntriesPage extends Component {
                                   style={{ width: `${Math.min(percent, 100)}%` }}
                                 ></div>
                               </div>
-                              <span className='ms-2 small fw-bold' style={{ minWidth: '40px' }}>{percent}%</span>
+                              <span className='ms-2 small fw-bold' style={{ minWidth: '40px' }}>
+                                {percent}%
+                              </span>
                             </div>
                           </td>
                         </tr>
@@ -154,13 +165,14 @@ export class TimeEntriesPage extends Component {
                 </div>
                 <div className='col-md-4'>
                   <div className='text-muted small text-uppercase'>Общий процент выполнения</div>
-                  <h3 className={`mb-0 ${totalPercent > 100 ? 'text-danger' : ''}`}>{totalPercent}%</h3>
+                  <h3 className={`mb-0 ${totalPercent > 100 ? 'text-danger' : ''}`}>
+                    {totalPercent}%
+                  </h3>
                 </div>
               </div>
             </div>
           </>
-        )}
-      </div>
+        )}      </div>
     );
   }
 }
