@@ -7,8 +7,8 @@ services:
     restart: always
     environment:
       POSTGRES_USER: test
-      POSTGRES_PASSWORD: 130469
-      POSTGRES_DB: TestAiNvkzDb
+      POSTGRES_PASSWORD: test_password
+      POSTGRES_DB: TestDb
     ports:
       - "5432:5432"
     volumes:
