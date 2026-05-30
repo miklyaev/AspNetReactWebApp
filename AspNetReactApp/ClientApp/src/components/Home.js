@@ -158,6 +158,8 @@ export class Home extends Component {
       editId: employee.id,
       editName: employee.name ?? '',
       editEmail: employee.email ?? '',
+      editPhone: employee.phone ?? '',
+      editAddress: employee.address ?? '',
       editLogin: employee.login ?? '',
       editPassword: '',
       editPosition: employee.position ?? '',
@@ -180,7 +182,7 @@ export class Home extends Component {
   }
 
   async handleApplyEdit() {
-    const { editKind, editId, editName, editEmail, editLogin, editPassword, editPosition } = this.state;
+    const { editKind, editId, editName, editEmail, editLogin, editPassword, editPosition, editPhone, editAddress } = this.state;
     if (!editKind || editId == null) {
       return;
     }
@@ -190,9 +192,10 @@ export class Home extends Component {
       email: editEmail,
       login: editLogin,
       password: editPassword,
-      position: editPosition
+      position: editPosition,
+      phone: editPhone,
+      address: editAddress
     };
-
     if (editKind === 'leader') {
       await apiClient.updateLeader(editId, payload);
     } else if (editKind === 'executor') {
@@ -292,9 +295,8 @@ export class Home extends Component {
     const isAdmin = me && me.isAuthenticated && me.isAdmin;
     const isLeader = me && me.isAuthenticated && me.role === 'Leader';
     const isExecutor = me && me.isAuthenticated && me.role === 'Executor';
-    const canEditAll = isLeader || isAdmin;
-    const canEditExecutors = isLeader || isExecutor || isAdmin;
-
+    const canEditAll = isAdmin;
+    const canEditExecutors = isLeader || isAdmin;
     const leaderCols = [
       { key: 'name', label: 'Имя' },
       { key: 'position', label: 'Должность' },
@@ -376,7 +378,7 @@ export class Home extends Component {
                       onClick={() => this.openEditModal('leader', leader)}
                       disabled={!canEditAll}
                     >
-                      ✎
+                      <i className="bi bi-pencil-fill"></i>
                     </button>
                     <button
                       type="button"
@@ -385,10 +387,9 @@ export class Home extends Component {
                       onClick={() => this.handleDeleteLeader(leader.id, leader.name)}
                       disabled={!canEditAll}
                     >
-                      ×
+                      <i className="bi bi-trash-fill"></i>
                     </button>
-                  </td>
-                </tr>
+                  </td>                </tr>
               ))}
             </tbody>
           </table>
@@ -484,7 +485,7 @@ export class Home extends Component {
                       onClick={() => this.openEditModal('executor', executor)}
                       disabled={!canEditExecutors}
                     >
-                      ✎
+                      <i className="bi bi-pencil-fill"></i>
                     </button>
                     <button
                       type="button"
@@ -493,10 +494,9 @@ export class Home extends Component {
                       onClick={() => this.handleDeleteExecutor(executor.id, executor.name)}
                       disabled={!canEditExecutors}
                     >
-                      ×
+                      <i className="bi bi-trash-fill"></i>
                     </button>
-                  </td>
-                </tr>
+                  </td>                </tr>
               ))}
             </tbody>
           </table>
@@ -577,7 +577,14 @@ export class Home extends Component {
                       <input className="form-control" maxLength={128} value={this.state.editPosition} onChange={(e) => this.setState({ editPosition: e.target.value })} />
                     </div>
                     <div className="mb-2">
-                      <label className="form-label">Логин</label>
+                      <label className="form-label">Телефон</label>
+                      <input className="form-control" maxLength={20} value={this.state.editPhone} onChange={(e) => this.setState({ editPhone: e.target.value })} />
+                    </div>
+                    <div className="mb-2">
+                      <label className="form-label">Адрес</label>
+                      <input className="form-control" maxLength={256} value={this.state.editAddress} onChange={(e) => this.setState({ editAddress: e.target.value })} />
+                    </div>
+                    <div className="mb-2">                      <label className="form-label">Логин</label>
                       <input className="form-control" maxLength={12} value={this.state.editLogin} onChange={(e) => this.setState({ editLogin: e.target.value })} />
                     </div>
                     <div className="mb-2">

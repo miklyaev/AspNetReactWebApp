@@ -89,9 +89,10 @@ public class ExecutorsController : ControllerBase
         }
 
         executor.Position = string.IsNullOrWhiteSpace(request.Position) ? null : request.Position.Trim();
+        executor.Phone = request.Phone?.Trim();
+        executor.Address = request.Address?.Trim();
 
-        await _dbService.UpdateEmployeeAsync(executor);
-        return Ok(executor);
+        await _dbService.UpdateEmployeeAsync(executor);        return Ok(executor);
     }
 
     public sealed class ExecutorRequest
@@ -101,6 +102,6 @@ public class ExecutorsController : ControllerBase
         public string Login { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
         public string Position { get; set; } = string.Empty;
-        // Placeholder to keep formatting consistent
-    }
-}
+        public string? Phone { get; set; }
+        public string? Address { get; set; }
+    }}

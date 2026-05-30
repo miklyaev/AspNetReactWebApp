@@ -88,9 +88,10 @@ public class LeadersController : ControllerBase
             leader.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password.Trim());
         }
         leader.Position = string.IsNullOrWhiteSpace(request.Position) ? null : request.Position.Trim();
+        leader.Phone = request.Phone?.Trim();
+        leader.Address = request.Address?.Trim();
 
-        await _dbService.UpdateEmployeeAsync(leader);
-        return Ok(leader);
+        await _dbService.UpdateEmployeeAsync(leader);        return Ok(leader);
     }
 
     public sealed class LeaderRequest
@@ -100,5 +101,6 @@ public class LeadersController : ControllerBase
         public string Login { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
         public string Position { get; set; } = string.Empty;
-    }
-}
+        public string? Phone { get; set; }
+        public string? Address { get; set; }
+    }}
