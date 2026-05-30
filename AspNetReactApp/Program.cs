@@ -66,9 +66,8 @@ using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await dbContext.Database.MigrateAsync();
-    await AppDbSeeder.SeedAsync(dbContext);
+    // await AppDbSeeder.SeedAsync(dbContext);
 }
-
 // Настройка Forwarded Headers (важно для работы за Nginx)
 app.UseForwardedHeaders(new ForwardedHeadersOptions
 {    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto

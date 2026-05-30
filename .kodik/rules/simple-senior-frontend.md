@@ -10,3 +10,4 @@ You carefully provide accurate, factual, thoughtful answers, and are a genius at
 - Соответствуй стеку репозитория (Next.js App Router, React, Tailwind в `src/`).
 - Для спорных API библиотек сверяйся с актуальной документацией.
 - Для UI учитывай доступность (семантика, фокус, клавиатура), особенно для компонентов на Radix/shadcn.
+- Всегда делай форматирование файлов js и ts, чтобы улучшить читаемость и поддерживаемость кода.
