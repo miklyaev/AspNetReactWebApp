@@ -1,6 +1,13 @@
 import React, { Component } from 'react';
 import { apiClient } from '../api/client';
 
+const statusOptions = [
+  { value: 0, label: 'К выполнению' },
+  { value: 1, label: 'В работе' },
+  { value: 2, label: 'Готово' },
+  { value: 3, label: 'Отменено' }
+];
+
 export class TimeEntriesPage extends Component {
   static displayName = TimeEntriesPage.name;
 
@@ -104,12 +111,12 @@ export class TimeEntriesPage extends Component {
                 <thead className='table-light'>
                   <tr>
                     <th>Задача</th>
+                    <th>Статус</th>
                     <th>Исполнитель</th>
                     <th className='text-end'>Запланировано (ч)</th>
                     <th className='text-end'>Потрачено (ч)</th>
                     <th className='text-center'>Прогресс</th>
-                  </tr>
-                </thead>
+                  </tr>                </thead>
                 <tbody>
                   {filteredTasks.length === 0 ? (
                     <tr>
@@ -128,17 +135,24 @@ export class TimeEntriesPage extends Component {
                       return (
                         <tr key={task.id}>
                           <td>{task.title}</td>
-                          <td>{executor?.name || <span className='text-muted'>Не назначен</span>}</td>
-                          <td className='text-center'>{task.plannedTime}</td>
+                          <td>
+                            <span className={`badge ${task.status === 1 ? 'bg-primary' :
+                                task.status === 2 ? 'bg-success' :
+                                  task.status === 3 ? 'bg-secondary' : 'bg-warning text-dark'
+                              }`}>
+                              {statusOptions.find(o => o.value === task.status)?.label || 'Неизвестно'}
+                            </span>
+                          </td>
+                          <td>{executor?.name || <span className='text-muted'>Не назначен</span>}</td>                          <td className='text-center'>{task.plannedTime}</td>
                           <td className='text-center'>{task.timeSpent}</td>
                           <td style={{ width: '200px' }}>
-                            <div className='d-flex align-items-center'>
+                            <div className='d-flex align-items-centerя не блядь в процентах'>
                               <div className='progress flex-grow-1' style={{ height: '8px' }}>
                                 <div
                                   className={`progress-bar ${progressClass}`}
                                   role='progressbar'
                                   style={{ width: `${Math.min(percent, 100)}%` }}
-                                ></div>
+                                ></div>Я знаю
                               </div>
                               <span className='ms-2 small fw-bold' style={{ minWidth: '40px' }}>
                                 {percent}%

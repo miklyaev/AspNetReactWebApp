@@ -70,6 +70,15 @@ export class TaskDetailModal extends Component {
     }
   }
 
+  handleTimeSpentChange(e) {
+    const { editStatus } = this.state;
+    if (Number(editStatus) !== 1) { // 1 - "В работе"
+      this.setState({ error: 'Изменять потраченное время можно только в статусе "В работе".' });
+      return;
+    }
+    this.setState({ editTimeSpent: e.target.value, error: null });
+  }
+
   async handleSave() {
     const { task, editTitle, editDescription, editPriority, editStatus, editTimeSpent, editPlannedTime } = this.state;
     if (!task) return;
@@ -204,10 +213,9 @@ export class TaskDetailModal extends Component {
                     step="0.5"
                     min="0"
                     value={editTimeSpent}
-                    onChange={(e) => this.setState({ editTimeSpent: e.target.value })}
+                    onChange={(e) => this.handleTimeSpentChange(e)}
                   />
-                </div>
-              </div>              <div className="col-md-4 mb-3">
+                </div>              </div>              <div className="col-md-4 mb-3">
                 <Label className="fw-bold mb-1">Приоритет</Label>
                 <div style={{ width: '75%' }}>
                   <Input
