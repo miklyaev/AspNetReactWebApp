@@ -110,28 +110,16 @@ export class TasksPage extends Component {
   async handleCreateTask(event) {
     event.preventDefault();
 
-    const { title, description, projectId, executorId, status, priority, plannedTime, selectedProjectId, selectedGoalId } = this.state;
-
-    if (!title.trim() || !projectId) {
-      return;
-    }
-
     try {
-      await apiClient.createTask({
-        title: title.trim(),
-        description: description.trim() || null,
-        projectId: Number(projectId),
-        executorId: executorId ? Number(executorId) : null,
-        status: Number(status),
-        priority: Number(priority),
-        plannedTime: plannedTime ? Number(plannedTime) : 0
-      });
+      const { title, description, projectId, executorId, status, priority, plannedTime, selectedProjectId, selectedGoalId } = this.state; const me = this.props.me;
+      const isExecutor = me && me.isAuthenticated && me.role === 'Executor';
+      const isAdmin = me && me.isAuthenticated && me.isAdmin;
+      const isLeader = me && me.isAuthenticated && me.role === 'Leader';
+      const canCreateTask = isAdmin || isLeader;
 
-      this.setState({ title: '', description: '', plannedTime: '' });
-      if (selectedProjectId === 'all') {
-        await this.loadTasks(null, selectedGoalId);
-      } else if (selectedProjectId) {
-        await this.loadTasks(selectedProjectId, null);
+      if (!canCreateTask || !title.trim() || !projectId || !executorId || !plannedTime || Number(plannedTime) <= 0) {
+        this.setState({ error: 'Необходимо заполнить все обязательные поля: название, проект, исполнитель и запланированное время.' });
+        return;
       }
     } catch (error) {
       this.setState({ error: error.message });
@@ -172,6 +160,7 @@ export class TasksPage extends Component {
     const isLeader = me && me.isAuthenticated && me.role === 'Leader';
     const isExecutor = me && me.isAuthenticated && me.role === 'Executor';
     const canEdit = isLeader || isExecutor || isAdmin;
+    const canCreateTask = isAdmin || isLeader;
     const canSetPlannedTime = isAdmin || isLeader;
     return (
       <div>
@@ -182,8 +171,12 @@ export class TasksPage extends Component {
               Редактирование в гостевом профиле запрещено! Войдите в свой профиль.
             </div>
           )}
+          {!isAdmin && isExecutor && (
+            <div style={{ color: 'orange', fontSize: '14px' }}>
+              Вы исполнитель. Ваши права на добавление задач ограничены.
+            </div>
+          )}
         </div>
-
         <div className="row mb-4">
           <div className="col-md-6">
             <label className="form-label"><strong>Цели</strong></label>
@@ -207,7 +200,7 @@ export class TasksPage extends Component {
               placeholder="Введите название"
               value={title}
               onChange={(event) => this.setState({ title: event.target.value })}
-              disabled={!canEdit}
+              disabled={!canCreateTask}
             />
           </div>
           <div className="mb-2">
@@ -217,7 +210,7 @@ export class TasksPage extends Component {
               placeholder="Введите описание"
               value={description}
               onChange={(event) => this.setState({ description: event.target.value })}
-              disabled={!canEdit}
+              disabled={!canCreateTask}
             />
           </div>
 
@@ -228,7 +221,7 @@ export class TasksPage extends Component {
                 className="form-select"
                 value={projectId}
                 onChange={(event) => this.setState({ projectId: event.target.value })}
-                disabled={!canEdit}
+                disabled={!canCreateTask}
               >
                 <option value="">Выберите проект</option>
                 {projects.map((project) => (
@@ -237,34 +230,35 @@ export class TasksPage extends Component {
               </select>
             </div>
             <div className="col-md-6">
-              <label className="form-label"><strong>Исполнитель</strong></label>
+              <label className="form-label"><strong>Исполнитель <span className="text-danger">*</span></strong></label>
               <select
                 className="form-select"
                 value={executorId}
                 onChange={(event) => this.setState({ executorId: event.target.value })}
-                disabled={!canEdit}
+                disabled={!canCreateTask}
+                required
               >
-                <option value="">Без исполнителя</option>
+                <option value="">Выберите исполнителя</option>
                 {executors.map((executor) => (
                   <option key={executor.id} value={executor.id}>{executor.name}</option>
                 ))}
               </select>
-            </div>
-            {canSetPlannedTime && (
+            </div>          {canSetPlannedTime && (
               <div className="col-md-6">
-                <label className="form-label"><strong>Планируемое время (ч)</strong></label>
+                <label className="form-label"><strong>Планируемое время (ч) <span className="text-danger">*</span></strong></label>
                 <input
                   type="number"
                   step="0.25"
-                  min="0"
+                  min="0.01"
                   className="form-control"
                   placeholder="0.00"
                   value={plannedTime}
                   onChange={(event) => this.setState({ plannedTime: event.target.value })}
+                  required
                 />
+                <small className="text-muted">Обязательно для заполнения</small>
               </div>
-            )}
-          </div>
+            )}          </div>
           <div className="row g-2 mb-3">
             <div className="col-md-6">
               <label className="form-label"><strong>Статус задачи</strong></label>
@@ -284,9 +278,8 @@ export class TasksPage extends Component {
             </div>
           </div>
 
-          <button className="btn btn-primary" type="submit" disabled={!canEdit || !projectId}>Добавить задачу</button>
+          <button className="btn btn-primary" type="submit" disabled={!canCreateTask || !projectId}>Добавить задачу</button>
         </form>
-
         <div className="d-flex align-items-center mb-3">
           <strong className="me-3">Фильтр проектов</strong>
           <select

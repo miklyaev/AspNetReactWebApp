@@ -28,14 +28,8 @@ public class CommentsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<Comment>> CreateComment([FromBody] CommentRequest request)
     {
-        // Комментировать могут только исполнители (Executors)
-        //if (!User.IsInRole(AuthConstants.Roles.Executor))
-        //{
-        //    return Forbid();
-        //}
-
-        var currentExecutorId = AuthConstants.GetEmployeeId(User); 
-        if (currentExecutorId is null || request.AuthorId != currentExecutorId.Value)
+        var currentEmployeeId = AuthConstants.GetEmployeeId(User); 
+        if (currentEmployeeId is null || request.AuthorId != currentEmployeeId.Value)
         {
             return Forbid();
         }
@@ -51,12 +45,6 @@ public class CommentsController : ControllerBase
             return BadRequest("Task not found.");
         }
 
-        //var executors = await _dbService.GetExecutorsAsync();
-        //if (!executors.Any(e => e.Id == request.AuthorId))
-        //{
-        //    return BadRequest("Author not found.");
-        //}
-
         var comment = new Comment
         {
             Text = request.Text.Trim(),
@@ -67,7 +55,6 @@ public class CommentsController : ControllerBase
         var created = await _dbService.CreateCommentAsync(comment);
         return Ok(created);
     }
-
     [Authorize(Roles = "Admin,Leader")]
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteComment(int id)
