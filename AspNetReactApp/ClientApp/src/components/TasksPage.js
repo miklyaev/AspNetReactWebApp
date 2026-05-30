@@ -121,6 +121,31 @@ export class TasksPage extends Component {
         this.setState({ error: 'Необходимо заполнить все обязательные поля: название, проект, исполнитель и запланированное время.' });
         return;
       }
+
+      await apiClient.createTask({
+        title,
+        description,
+        projectId,
+        executorId,
+        status,
+        priority,
+        plannedTime: Number(plannedTime)
+      });
+
+      this.setState({
+        title: '',
+        description: '',
+        projectId: '',
+        executorId: '',
+        plannedTime: '',
+        error: null
+      });
+
+      if (selectedProjectId === 'all') {
+        await this.loadTasks(null, selectedGoalId);
+      } else {
+        await this.loadTasks(selectedProjectId, null);
+      }
     } catch (error) {
       this.setState({ error: error.message });
     }
@@ -194,36 +219,38 @@ export class TasksPage extends Component {
         <form className="card card-body mb-4" onSubmit={(event) => this.handleCreateTask(event)}>
           <h5 className="mb-3">Новая задача</h5>
           <div className="mb-2">
-            <label className="form-label"><strong>Название задачи</strong></label>
+            <label className="form-label"><strong>Название задачи <span className="text-danger">*</span></strong></label>
             <input
               className="form-control"
               placeholder="Введите название"
               value={title}
               onChange={(event) => this.setState({ title: event.target.value })}
               disabled={!canCreateTask}
+              required
             />
           </div>
           <div className="mb-2">
-            <label className="form-label"><strong>Описание</strong></label>
+            <label className="form-label"><strong>Описание <span className="text-danger">*</span></strong></label>
             <textarea
               className="form-control"
               placeholder="Введите описание"
               value={description}
               onChange={(event) => this.setState({ description: event.target.value })}
               disabled={!canCreateTask}
+              required
             />
           </div>
 
           <div className="row g-2 mb-2">
             <div className="col-md-6">
-              <label className="form-label"><strong>Проект для задачи</strong></label>
+              <label className="form-label"><strong>Проект для задачи <span className="text-danger">*</span></strong></label>
               <select
                 className="form-select"
                 value={projectId}
                 onChange={(event) => this.setState({ projectId: event.target.value })}
                 disabled={!canCreateTask}
-              >
-                <option value="">Выберите проект</option>
+                required
+              >                <option value="">Выберите проект</option>
                 {projects.map((project) => (
                   <option key={project.id} value={project.id}>{project.title}</option>
                 ))}
