@@ -262,3 +262,4 @@ DesignTimeBuild/
 ProjectEvalution/
 .vs
 AspNetReactApp/appsettings.Development.json
+appsettings.Production.json
