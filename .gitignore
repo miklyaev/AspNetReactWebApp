@@ -193,6 +193,7 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 appsettings.Development.json
+appsettings.Production.json
 
 # Docker
 .dockerignore
