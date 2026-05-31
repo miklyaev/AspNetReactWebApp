@@ -262,77 +262,54 @@ npm run test
 
 ## Docker и контейнеризация
 
+Проект полностью контейнеризирован и готов к запуску в Docker-окружении.
+
 ### Dockerfile
-Многоступенчатая сборка:
-1. build stage: на базе mcr.microsoft.com/dotnet/sdk:8.0, устанавливается Node.js 20, собираются .NET и React
-2. publish stage: публикация .NET-приложения
-3. final stage: на базе mcr.microsoft.com/dotnet/aspnet:8.0, контейнер слушает порт 5000
+Используется многоэтапная сборка (multi-stage build):
+1.  **build**: Базовый образ `.NET 8.0 SDK`. Устанавливается `Node.js 20.x` для сборки React-приложения. Выполняется `dotnet restore` и `dotnet build`.
+2.  **publish**: Выполняется `dotnet publish`, который автоматически запускает `npm run build` для фронтенда (благодаря настройкам в `.csproj`).
+3.  **final**: Минимальный образ `aspnet:8.0`. Копируются только опубликованные файлы. Приложение слушает порт `5000`.
 
-### docker-compose.yml
-Сервисы:
-- db: контейнер PostgreSQL 16-alpine
-  - Database: TestAiNvkzDb
-  - Учетные данные: test / test_password (измените перед деплоем в production)
-  - Порт: 5432
-  - Volume: postgres_data (для персистентности данных)
-- web: ASP.NET React приложение
-  - Собирается по Dockerfile
-  - Зависит от db
-  - Порт: 5000
-  - Переменные окружения: ASPNETCORE_ENVIRONMENT=Production
+### Docker Compose
+Файл `docker-compose.yml` поднимает два сервиса:
+- **db**: PostgreSQL 16 на базе Alpine. Данные сохраняются в volume `postgres_data`.
+- **web**: Основное приложение. Зависит от `db`. Настроены переменные окружения для подключения к базе и режим `Production`.
+- файл `docker-compose.yml` следует отредактировать, вписать правильные параметры для подключения к базе данных на продакшене
 
-## CI/CD
+### Команды для запуска
+```bash
+# Сборка и запуск всех контейнеров в фоновом режиме
+docker-compose up -d --build
 
-### GitHub Actions (.github/workflows/docker-publish.yml)
-Триггеры: push в main, PR в main, теги релизов (v*.*.*)
-- Собирает Docker-образ из контекста ./AspNetReactApp
-- Публикует образ в GitHub Container Registry (ghcr.io)
-- Использует кэширование слоёв Docker (type=gha)
-- Автоматизация для релизов и PR
+# Просмотр логов
+docker-compose logs -f
+
+# Остановка и удаление контейнеров
+docker-compose down
+```
 
 ## Схема сборки и деплоя
 
-### Сборка для разработки
-```
-dotnet build
-  ↓
-MSBuild проверяет наличие node_modules
-  ↓
-npm install (если нужно)
-  ↓
-React dev-сервер (setupProxy.js) настраивается
-  ↓
-SPA proxy перенаправляет вызовы к React на :44418
-```
+### CI/CD (GitHub Actions)
+Автоматизация настроена через workflow `.github/workflows/docker-publish.yml`.
 
-### Сборка для production
-```
-dotnet publish -c Release
-  ↓
-npm install + npm run build
-  ↓
-Выходной каталог React (./build/) копируется в wwwroot/
-  ↓
-Статические файлы обслуживаются ASP.NET
-  ↓
-Маршруты API (/api/*) обрабатываются контроллерами
-  ↓
-SPA fallback — index.html
-```
+**Процесс:**
+1.  **Trigger**: Push в ветку `main` или создание тега `v*.*.*`.
+2.  **Build**:
+    - Checkout кода.
+    - Авторизация в GitHub Container Registry (ghcr.io).
+    - Сборка Docker-образа с использованием кэширования слоёв (`type=gha`).
+    - Присвоение тегов (например, `latest` или номер версии).
+3.  **Push**: Публикация готового образа в репозиторий пакетов GitHub.
 
-### Docker Build
-```
-Docker build (multi-stage из AspNetReactApp/)
-  ↓
-SDK stage: dotnet restore + build + publish
-  ↓
-Final stage: копирование опубликованного приложения
-  ↓
-Kestrel слушает порт 5000
-```
+### Схема развертывания
+1.  **Локально**: Разработчик использует `docker-compose` для поднятия идентичного production-окружения.
+2.  **Production**:
+    - Образ забирается из `ghcr.io`.
+    - Запускается за обратным прокси (Nginx/Traefik), который терминирует SSL и проксирует запросы на порт `5000`.
+    - При старте контейнера `web` автоматически применяются миграции БД (настроено в `Program.cs`).
 
 ## Примечания по конфигурации проекта
-
 ### AspNetReactApp.csproj
 - `<TargetFramework>net8.0</TargetFramework>`: таргет .NET 8
 - `<Nullable>enable</Nullable>`: включены nullable reference types

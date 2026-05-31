@@ -3,12 +3,12 @@ version: '3.8'
 services:
   db:
     image: postgres:16-alpine
-    container_name: aspnet-react-db
+    container_name: jira_clone_db
     restart: always
     environment:
+      POSTGRES_DB: TestDb
       POSTGRES_USER: test
       POSTGRES_PASSWORD: test_password
-      POSTGRES_DB: TestDb
     ports:
       - "5432:5432"
     volumes:
@@ -18,13 +18,13 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: aspnet-react-app
+    container_name: jira_clone_web
     restart: always
     ports:
       - "5000:5000"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
-      - ConnectionStrings__DefaultConnection=Host=db;Database=mydatabase;Username=myuser;Password=mypassword
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=TestAiNvkzDb;Username=test;Password=test_password
     depends_on:
       - db
 
