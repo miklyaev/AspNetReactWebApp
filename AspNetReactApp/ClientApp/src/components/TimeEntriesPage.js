@@ -146,13 +146,13 @@ export class TimeEntriesPage extends Component {
                           <td>{executor?.name || <span className='text-muted'>Не назначен</span>}</td>                          <td className='text-center'>{task.plannedTime}</td>
                           <td className='text-center'>{task.timeSpent}</td>
                           <td style={{ width: '200px' }}>
-                            <div className='d-flex align-items-centerя не блядь в процентах'>
+                            <div className='d-flex align-items-center'>
                               <div className='progress flex-grow-1' style={{ height: '8px' }}>
                                 <div
                                   className={`progress-bar ${progressClass}`}
                                   role='progressbar'
                                   style={{ width: `${Math.min(percent, 100)}%` }}
-                                ></div>Я знаю
+                                ></div>
                               </div>
                               <span className='ms-2 small fw-bold' style={{ minWidth: '40px' }}>
                                 {percent}%
