@@ -18,6 +18,7 @@ public class TasksController : ControllerBase
         _dbService = dbService;
     }
 
+    [Authorize]
     [HttpGet]
     public async Task<ActionResult<List<TaskItem>>> GetTasks([FromQuery] int? projectId, [FromQuery] int? goalId)
     {
@@ -34,6 +35,7 @@ public class TasksController : ControllerBase
         var tasks = await _dbService.GetTasksAsync();
         return Ok(tasks);
     }
+    [Authorize]
     [HttpGet("{id:int}")]
     public async Task<ActionResult<TaskItem>> GetTask(int id)
     {

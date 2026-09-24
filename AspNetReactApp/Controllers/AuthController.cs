@@ -34,7 +34,11 @@ public class AuthController : ControllerBase
 
         if (string.Equals(login, "admin", StringComparison.OrdinalIgnoreCase))
         {
-            var adminPassword = _configuration["ADMIN_PASSWORD"] ?? "SimpleJira";
+            var adminPassword = _configuration["ADMIN_PASSWORD"];
+            if (string.IsNullOrEmpty(adminPassword))
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Admin password not configured.");
+            }
             if (!string.Equals(password, adminPassword, StringComparison.Ordinal))
             {
                 return Unauthorized();

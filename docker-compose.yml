@@ -6,7 +6,7 @@ services:
     container_name: jira_clone_db
     restart: always
     environment:
-      POSTGRES_DB: TestDb
+      POSTGRES_DB: TestAiNvkzDb
       POSTGRES_USER: test
       POSTGRES_PASSWORD: test_password
     ports:

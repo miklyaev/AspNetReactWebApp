@@ -16,6 +16,7 @@ public class ExecutorsController : ControllerBase
         _dbService = dbService;
     }
 
+    [Authorize]
     [HttpGet]
     public async Task<ActionResult<List<Executor>>> GetExecutors()
     {
