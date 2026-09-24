@@ -40,7 +40,7 @@ public interface IEmployee : IBaseEntity
     string Name { get; set; }
     string Email { get; set; }
     string Login { get; set; }
-    string Password { get; set; }
+    string PasswordHash { get; set; }
 }
 
 public interface IExecutor : IEmployee
