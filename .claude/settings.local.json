@@ -2,20 +2,7 @@
   "permissions": {
     "allow": [
       "Bash(git add *)",
-      "Bash(git commit -m ' *)",
-      "Bash(dotnet build *)",
-      "Bash(timeout 10 dotnet run --no-build)",
-      "Bash(curl -s http://localhost:5000/swagger/index.html)",
-      "Bash(curl -s http://localhost:5083/swagger/v1/swagger.json)",
-      "Bash(curl -k -s https://localhost:7077/swagger/v1/swagger.json)",
-      "Bash(dotnet run *)",
-      "Bash(curl -s http://localhost:5083/api/auth/me)",
-      "Bash(cat /tmp/app.log | grep -i \"error\\\\|exception\\\\|failed\" | head -20)",
-      "Bash(dotnet new *)",
-      "Bash(dotnet add *)",
-      "Bash(rm \"D:\\\\NeuroNet\\\\Result-University\\\\Projects\\\\AspNetReactWebApp\\\\AspNetReactApp.Tests\\\\UnitTest1.cs\")",
-      "Bash(dotnet test *)",
-      "Bash(pkill -f \"dotnet run\")"
+      "Bash(git commit -m ' *)"
     ]
   }
 }
