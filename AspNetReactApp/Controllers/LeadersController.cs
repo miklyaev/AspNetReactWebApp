@@ -16,7 +16,6 @@ public class LeadersController : ControllerBase
         _dbService = dbService;
     }
 
-    [Authorize]
     [HttpGet]
     public async Task<ActionResult<List<Leader>>> GetLeaders()
     {

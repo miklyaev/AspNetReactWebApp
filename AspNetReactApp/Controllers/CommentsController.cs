@@ -17,7 +17,6 @@ public class CommentsController : ControllerBase
         _dbService = dbService;
     }
 
-    [Authorize]
     [HttpGet]
     public async Task<ActionResult<List<Comment>>> GetComments([FromQuery] int taskId)
     {

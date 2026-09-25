@@ -48,12 +48,6 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new() { Title = "JiraClone API", Version = "v1" });
-});
-
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
@@ -80,16 +74,8 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
 });
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "JiraClone API v1");
-    });
-}
-else
-{
+if (!app.Environment.IsDevelopment())
+{    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
