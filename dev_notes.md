@@ -1,5 +1,19 @@
 # Dev Notes
 
+## 2026-09-29
+
+### Понятное сообщение при неудачном входе
+
+**Область:** Frontend
+
+**Что изменилось:**
+- `client.js`: `request()` теперь прикрепляет HTTP-статус к ошибке (`error.status`)
+- `ProfilePanel.js`: при 401 от `/api/auth/login` в форме логина выводится «Пользователь с таким логином и паролем не найден.» вместо технического «Request failed with status 401»; другие ошибки показываются как раньше
+
+**Затронутые пути:**
+- `AspNetReactApp/ClientApp/src/api/client.js`
+- `AspNetReactApp/ClientApp/src/components/ProfilePanel.js`
+
 ## 2026-09-28
 
 ### Валидация формата email сотрудников (Leaders/Executors)

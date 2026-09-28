@@ -72,7 +72,10 @@ export class ProfilePanel extends Component {
       this.setState({ login: '', password: '' });
       await this.load();
     } catch (err) {
-      this.setState({ error: err.message || 'Login failed' });
+      const message = err.status === 401
+        ? 'Пользователь с таким логином и паролем не найден.'
+        : (err.message || 'Login failed');
+      this.setState({ error: message });
     }
   }
 

@@ -14,7 +14,9 @@ async function request(path, options = {}) {
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(errorText || `Request failed with status ${response.status}`);
+    const error = new Error(errorText || `Request failed with status ${response.status}`);
+    error.status = response.status;
+    throw error;
   }
 
   if (response.status === 204) {
