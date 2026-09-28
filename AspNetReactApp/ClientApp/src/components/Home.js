@@ -1,6 +1,10 @@
 import { Component } from 'react';
 import { apiClient } from '../api/client';
 import './Home.css';
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const isValidEmail = (email) => EMAIL_REGEX.test((email ?? '').trim());
+
 export class Home extends Component {
   static displayName = Home.name;
 
@@ -137,6 +141,7 @@ export class Home extends Component {
     const errors = {};
     if (!this.state.responsibleName.trim()) errors.name = 'Имя обязательно';
     if (!this.state.responsibleEmail.trim()) errors.email = 'Email обязателен';
+    else if (!isValidEmail(this.state.responsibleEmail)) errors.email = 'Некорректный формат email';
     if (!this.state.responsibleLogin.trim()) errors.login = 'Логин обязателен';
     if (!this.state.responsiblePassword.trim()) errors.password = 'Пароль обязателен';
     return errors;
@@ -146,6 +151,7 @@ export class Home extends Component {
     const errors = {};
     if (!this.state.executorName.trim()) errors.name = 'Имя обязательно';
     if (!this.state.executorEmail.trim()) errors.email = 'Email обязателен';
+    else if (!isValidEmail(this.state.executorEmail)) errors.email = 'Некорректный формат email';
     if (!this.state.executorLogin.trim()) errors.login = 'Логин обязателен';
     if (!this.state.executorPassword.trim()) errors.password = 'Пароль обязателен';
     return errors;
@@ -164,6 +170,7 @@ export class Home extends Component {
       editPassword: '',
       editPosition: employee.position ?? '',
       showEditPassword: false,
+      editErrors: {},
     });
   }
 
@@ -177,13 +184,22 @@ export class Home extends Component {
       editLogin: '',
       editPassword: '',
       editPosition: '',
-      showEditPassword: false
+      showEditPassword: false,
+      editErrors: {}
     });
   }
 
   async handleApplyEdit() {
     const { editKind, editId, editName, editEmail, editLogin, editPassword, editPosition, editPhone, editAddress } = this.state;
     if (!editKind || editId == null) {
+      return;
+    }
+
+    const editErrors = {};
+    if (!editEmail.trim()) editErrors.email = 'Email обязателен';
+    else if (!isValidEmail(editEmail)) editErrors.email = 'Некорректный формат email';
+    if (Object.keys(editErrors).length > 0) {
+      this.setState({ editErrors });
       return;
     }
 
@@ -421,6 +437,7 @@ export class Home extends Component {
                 onChange={(e) => this.setState({ responsibleEmail: e.target.value })}
                 disabled={!canEditAll}
               />
+              {leaderErrors.email && <div className="invalid-feedback">{leaderErrors.email}</div>}
             </div>
             <div className="col-md-2">
               <input
@@ -528,6 +545,7 @@ export class Home extends Component {
                 onChange={(e) => this.setState({ executorEmail: e.target.value })}
                 disabled={!canEditExecutors}
               />
+              {executorErrors.email && <div className="invalid-feedback">{executorErrors.email}</div>}
             </div>
             <div className="col-md-2">
               <input
@@ -570,7 +588,12 @@ export class Home extends Component {
                     </div>
                     <div className="mb-2">
                       <label className="form-label">Email</label>
-                      <input className="form-control" value={this.state.editEmail} onChange={(e) => this.setState({ editEmail: e.target.value })} />
+                      <input
+                        className={`form-control ${this.state.editErrors?.email ? 'is-invalid' : ''}`}
+                        value={this.state.editEmail}
+                        onChange={(e) => this.setState({ editEmail: e.target.value })}
+                      />
+                      {this.state.editErrors?.email && <div className="invalid-feedback">{this.state.editErrors.email}</div>}
                     </div>
                     <div className="mb-2">
                       <label className="form-label">Должность</label>

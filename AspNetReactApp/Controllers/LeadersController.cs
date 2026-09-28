@@ -1,3 +1,4 @@
+using AspNetReactApp.Validation;
 using JiraClone.Data.Domain.Entities;
 using JiraClone.Data.Domain.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -30,6 +31,11 @@ public class LeadersController : ControllerBase
         if (string.IsNullOrWhiteSpace(request.Name) || string.IsNullOrWhiteSpace(request.Email))
         {
             return BadRequest("Name and email are required.");
+        }
+
+        if (!EmailValidator.IsValid(request.Email))
+        {
+            return BadRequest("Invalid email format.");
         }
 
         var Leader = new Leader
@@ -74,6 +80,11 @@ public class LeadersController : ControllerBase
         if (leader == null)
         {
             return NotFound();
+        }
+
+        if (!EmailValidator.IsValid(request.Email))
+        {
+            return BadRequest("Invalid email format.");
         }
 
         leader.Name = request.Name.Trim();

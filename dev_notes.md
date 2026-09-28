@@ -1,5 +1,23 @@
 # Dev Notes
 
+## 2026-09-28
+
+### Валидация формата email сотрудников (Leaders/Executors)
+
+**Область:** Backend | Frontend
+
+**Что изменилось:**
+- Backend: новый хелпер `AspNetReactApp/Validation/EmailValidator.cs` (regex `^[^\s@]+@[^\s@]+\.[^\s@]+$`)
+- `LeadersController`/`ExecutorsController`: POST и PUT возвращают 400 `Invalid email format.` при неверном формате email (раньше PUT вообще не проверял email и падал в 500 на null/пустой строке)
+- `Home.js`: формы добавления Leader/Executor и модалка редактирования проверяют формат email (хелпер `isValidEmail`, тот же regex) и показывают текст «Некорректный формат email» через `invalid-feedback` (раньше ошибки задавались, но не выводились)
+
+**Затронутые пути:**
+- `AspNetReactApp/Validation/EmailValidator.cs` (новый)
+- `AspNetReactApp/Controllers/LeadersController.cs`
+- `AspNetReactApp/Controllers/ExecutorsController.cs`
+- `AspNetReactApp/ClientApp/src/components/Home.js`
+
+
 ## 2026-08-14
 
 ### Создан файл mimo.md с предложениями по развитию проекта
